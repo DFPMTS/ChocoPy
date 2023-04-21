@@ -32,6 +32,17 @@ string LightWalker::get_fully_qualified_name(semantic::FunctionDefType *func) {
     return "";
 }
 
+/*
+ * Convert
+ *       Type:
+ *           "int"  -> "i32"
+ *           "bool" -> "i1"
+ *           "str"  -> ptr_str_type
+ *           "<None>" -> ptr_obj_type
+ *           USER_CLASS to ptr_to_USER_CLASS
+ *       *GLOBAL* Function:
+ *           FunctionDef  ->  FuntcionType
+ */
 Type *LightWalker::semantic_type_to_llvm_type(semantic::SymbolType *type) {
     if (type->is_list_type()) {
         return PtrType::get(list_class);
@@ -66,112 +77,188 @@ Type *LightWalker::semantic_type_to_llvm_type(semantic::SymbolType *type) {
     assert(0);
 }
 
+/*
+ *   sym: Symbol Table
+ *   Setting up pre-defined types:
+ *       void, i32, i1, i8, ptr_i8_type
+ */
 LightWalker::LightWalker(parser::Program &program)
     : sym(&program.symbol_table) {
     module = std::make_unique<Module>("ChocoPy code");
     builder = std::make_unique<IRBuilder>(nullptr, module.get());
 
+    // *  Setting up pre-defined types:
+    // *      void, i32, i1, i8, ptr_i8_type
     void_type = Type::get_void_type(&*module);
     i32_type = Type::get_int32_type(&*module);
     i1_type = Type::get_int1_type(&*module);
     i8_type = IntegerType::get(8, &*module);
     ptr_i8_type = PtrType::get(i8_type);
 
-    /** Get the class ready. */
+    // *  Object Class & ptr_obj_type
     object_class = new Class(&*module, "object", 0, nullptr, true, true);
     ptr_obj_type = PtrType::get(object_class->get_type());
+
+    // *  Null
     null = ConstantNull::get(ptr_obj_type);
 
+    // *  initializer for Object Class
     auto object_init =
         Function::create(FunctionType::get(ptr_obj_type, {ptr_obj_type}),
                          "$object.__init__", &*module);
     object_class->add_method(object_init);
+
+    // * ptr_ptr_obj_type
     ptr_ptr_obj_type = PtrType::get(ptr_obj_type);
 
+    /*
+     * Int Class
+     * ptr_int_type
+     * Int.__init__()
+     * Int.__int__
+     */
     int_class = new Class(&*module, "int", 1, nullptr, true, true);
     ptr_int_type = PtrType::get(int_class->get_type());
     int_class->add_method(object_init);
     int_class->add_attribute(new AttrInfo(i32_type, "__int__"));
 
+    /*
+     * Bool Class
+     * ptr_bool_type
+     * Bool.__init__()
+     * Bool.__bool__
+     */
     bool_class = new Class(&*module, "bool", 2, nullptr, true, true);
     ptr_bool_type = PtrType::get(bool_class->get_type());
     bool_class->add_method(object_init);
     bool_class->add_attribute(new AttrInfo(i1_type, "__bool__"));
 
+    /*
+     * Str Class
+     * ptr_str_type
+     * Str.__init__()
+     * Str.__len__
+     * Str.__str__
+     */
     Class *str_class = new Class(module.get(), "str", 3, object_class, true);
     str_class->add_attribute(new AttrInfo(i32_type, "__len__", 0));
     str_class->add_attribute(new AttrInfo(ptr_i8_type, "__str__"));
     str_class->add_method(object_init);
     ptr_str_type = PtrType::get(str_class->get_type());
 
+    /*
+     * List Class
+     * List.__init__()
+     * List.__len__
+     * List.__list__
+     */
     list_class = new Class(&*module, ".list", -1, nullptr, true);
     list_class->add_method(object_init);
     list_class->add_attribute(new AttrInfo(i32_type, "__len__", 0));
     list_class->add_attribute(new AttrInfo(ptr_ptr_obj_type, "__list__", 0));
 
+    // * ptr_list_type
     auto TyListClass = list_class->get_type();
     ptr_list_type = PtrType::get(TyListClass);
 
-    /** Predefined functions. */
-    // print Out Of Bound error and exit
+    // * Predefined functions.
+    // * print OOB (Out Of Bound) error and exit
     error_oob_fun = Function::create(FunctionType::get(void_type, {}),
                                      "error.OOB", module.get());
 
-    // print None error and exit
+    // * print None error and exit
     error_none_fun = Function::create(FunctionType::get(void_type, {}),
                                       "error.None", module.get());
 
-    // print Div Zero error and exit
+    // * print Div Zero error and exit
     error_div_fun = Function::create(FunctionType::get(void_type, {}),
                                      "error.Div", module.get());
 
-    // param: number of elements, element, element, ... (variable args)
-    // return: pointer to a list
+    /*
+     *   param:
+     *       number of elements,
+     *       element, element, ... (variable args)
+     *   return:
+     *       pointer to a list
+     */
     construct_list_fun = Function::create(
         FunctionType::get(ptr_list_type, {i32_type, i32_type}, true),
         "construct_list", module.get());
 
-    // param: pointer to a list, pointer to a list
-    // return: pointer to a new list
+    /*
+     *   param:
+     *       pointer to a list,
+     *       pointer to a list
+     *   return:
+     *       pointer to a new list
+     */
     concat_fun = Function::create(
         FunctionType::get(ptr_list_type, {ptr_list_type, ptr_list_type}),
         "concat_list", module.get());
 
-    // param: char
-    // return: pointer to a str object
+    /*
+     *   param:
+     *        char
+     *   return:
+     *        pointer to a str object
+     */
     makestr_fun = Function::create(FunctionType::get(ptr_str_type, {i8_type}),
                                    "makestr", module.get());
 
-    // param: pointer to an object
+    /*
+     *   param:
+     *       pointer to an object
+     *   return:
+     *       length of the object
+     */
     len_fun = Function::create(FunctionType::get(i32_type, {ptr_obj_type}),
                                "$len", module.get());
 
-    // param: pointer to an object
+    /*
+     *   param:
+     *       pointer to an object
+     */
     print_fun = Function::create(FunctionType::get(void_type, {ptr_obj_type}),
                                  "print", module.get());
 
-    // param: pointer to object
-    // return: pointer to a new object with the same type
+    /*
+     *   param:
+     *       pointer to object
+     *   return:
+     *       pointer to a new object with the same type
+     */
     alloc_fun =
         Function::create(FunctionType::get(ptr_obj_type, {ptr_obj_type}),
                          "alloc_object", module.get());
 
-    // param: bool value
-    // return: pointer to a bool object
+    /*
+     *   param:
+     *       bool value
+     *   return:
+     *       pointer to a bool object
+     */
     makebool_fun = Function::create(FunctionType::get(ptr_bool_type, {i1_type}),
                                     "makebool", module.get());
 
-    // param: int value
-    // return: pointer to a int object
+    /*
+     *  param:
+     *      int value
+     *  return:
+     *      pointer to a int object
+     */
     makeint_fun = Function::create(FunctionType::get(ptr_int_type, {i32_type}),
                                    "makeint", module.get());
 
-    // return: pointer to a str object
+    //* return: pointer to a str object
     input_fun = Function::create(FunctionType::get(ptr_str_type, {}), "$input",
                                  module.get());
 
-    // param: pointer to str object, pointer to str object
-    // return: bool
+    /*
+     *  param:
+     *      pointer to str object, pointer to str object
+     *  return:
+     *      bool
+     */
     auto str_compare_type =
         FunctionType::get(i1_type, {ptr_str_type, ptr_str_type});
     streql_fun =
@@ -179,12 +266,17 @@ LightWalker::LightWalker(parser::Program &program)
     strneql_fun =
         Function::create(str_compare_type, "str_object_neq", module.get());
 
-    // param: pointer to str object, pointer to str object
-    // return: pointer to a new str object
+    /*
+     *  param:
+     *      pointer to str object, pointer to str object
+     *  return:
+     *      pointer to a new str object
+     */
     strcat_fun = Function::create(
         FunctionType::get(ptr_str_type, {ptr_str_type, ptr_str_type}),
         "str_object_concat", module.get());
 
+    // * Enter the Global scope and install pre-defined Classes
     scope.enter();
     scope.push_in_global("object", object_class);
     scope.push_in_global("int", int_class);
@@ -202,14 +294,19 @@ void LightWalker::visit(parser::PassStmt &) {}
 void LightWalker::visit(parser::GlobalDecl &) {}
 void LightWalker::visit(parser::NonlocalDecl &) {}
 
-/**
+/*
  * Analyze PROGRAM, creating Info objects for all symbols.
  * Populate the global symbol table.
  */
 void LightWalker::visit(parser::Program &node) {
+    // * setup main
     auto main_func_type = FunctionType::get(void_type, {});
     auto main_func = Function::create(main_func_type, "main", module.get());
+
+    // * Create main_basic_block;
     auto main_bb = BasicBlock::create(&*module, "", main_func);
+
+    // * Set insert point and install main to Global
     builder->set_insert_point(main_bb);
     scope.push_in_global("$main", main_func);
 
