@@ -140,6 +140,37 @@ class TypeChecker : public ast::ASTAnalyzer {
     void visit(parser::Program &node) override;
     void visit(parser::AssignStmt &node) override;
 
+    // * Add nonlocal/global variable to symbol table
+    void visit(parser::NonlocalDecl &node) override;
+    void visit(parser::GlobalDecl &node) override;
+
+    // * Also type check TypedVar
+    void visit(parser::TypedVar &node) override;
+
+    // * Return type R
+    shared_ptr<SymbolType> return_type = nullptr;
+
+    // * Method/attribute environment M
+    shared_ptr<SymbolType> method_attr_env = nullptr;
+
+    // * containing class C
+    shared_ptr<SymbolType> containing_class = nullptr;
+
+    // * Will the ID be used in AssignStmt
+    // ! This flag will only take effect once ,so the ID to be assigned must be
+    // ! visited first
+    // TODO: may need a better way to keep track of lvalues
+    bool is_assign = false;
+
+    // * Check the conformance between classes
+    bool TypeConform(SymbolType *type_1, SymbolType *type_2);
+    // * Check the assignment compatibility between type_1 and type_2
+    bool TypeAssign(SymbolType *type_1, SymbolType *type_2);
+    // * LCA of types
+    shared_ptr<SymbolType> LCA(shared_ptr<SymbolType> type_1,
+                               shared_ptr<SymbolType> type_2);
+    void TypeLeqChecker();
+
     TypeChecker(parser::Program &program)
         : sym(&program.symbol_table),
           global(&program.symbol_table),
@@ -153,6 +184,7 @@ class TypeChecker : public ast::ASTAnalyzer {
 
     /** The current symbol table (changes depending on the function
      *  being analyzed). */
+    // * Local environment O
     SymbolTable *sym;
     SymbolTable *const global;
     HierachyTree *const hierachy_tree;
@@ -166,7 +198,10 @@ class TypeChecker : public ast::ASTAnalyzer {
         int_value_type = std::make_shared<ClassValueType>("int"),
         bool_value_type = std::make_shared<ClassValueType>("bool"),
         none_value_type = std::make_shared<ClassValueType>("<None>"),
-        str_value_type = std::make_shared<ClassValueType>("str");
+        str_value_type = std::make_shared<ClassValueType>("str"),
+        empty_value_type = std::make_shared<ClassValueType>("<Empty>");
+    std::shared_ptr<ListValueType> none_list_type =
+        std::make_shared<ListValueType>(none_value_type);
 };
 
 class SymbolTableGenerator : public ast::ASTAnalyzer {
@@ -233,8 +268,6 @@ class SymbolTableGenerator : public ast::ASTAnalyzer {
     void visit(parser::ClassDef &) override;
     void visit(parser::VarDef &) override;
     void visit(parser::FuncDef &) override;
-    void visit(parser::NonlocalDecl &) override;
-    void visit(parser::GlobalDecl &) override;
 
    private:
     shared_ptr<SymbolType> return_value = nullptr;
