@@ -459,12 +459,20 @@ void LightWalker::visit(parser::UnaryExpr &node) {
 }
 void LightWalker::visit(parser::VarDef &node) {
     // TODO: Implement this, this is not complete
+    // ! str, Class & local variables
     if (scope.in_global()) {
         if (node.var->type->get_name() == "int") {
             GlobalVariable::create(
                 node.var->identifier->name, module.get(),
                 IntegerType::get(32, module.get()), false,
                 ConstantInt::get(node.value->int_value, module.get()));
+        } else if (node.var->type->get_name() == "bool") {
+            auto bool_value =
+                dynamic_cast<parser::BoolLiteral *>(node.value.get());
+            GlobalVariable::create(
+                node.var->identifier->name, module.get(),
+                IntegerType::get(1, module.get()), false,
+                ConstantInt::get(bool_value->bin_value, module.get()));
         } else {
             assert(0);
         }
