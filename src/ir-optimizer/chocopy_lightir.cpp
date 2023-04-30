@@ -587,6 +587,10 @@ void LightWalker::visit(parser::MethodCallExpr &node) {
 void LightWalker::visit(parser::ReturnStmt &node) {
     // TODO: Implement this
     node.value->accept(*this);
+
+    if (node.value->inferredType->get_name() == "bool")
+        visitor_return_value->set_type(i1_type);
+
     builder->create_ret(visitor_return_value);
 }
 void LightWalker::visit(parser::StringLiteral &node) {
@@ -596,7 +600,6 @@ void LightWalker::visit(parser::StringLiteral &node) {
     auto const_str =
         GlobalVariable::create("const_" + to_string(const_id), module.get(),
                                ptr_str_type, false, const_str_value);
-    // builder->create_store(const_str, ptr_const_str);
     visitor_return_value = const_str;
 }
 void LightWalker::visit(parser::UnaryExpr &node) {
@@ -649,6 +652,28 @@ void LightWalker::visit(parser::VarDef &node) {
 }
 void LightWalker::visit(parser::WhileStmt &node) {
     // TODO: Implement this
+    // set up basic blocks
+    auto prev_basic_block = builder->get_insert_block();
+    auto cond =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto body =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto end =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    // jump to cond
+    builder->create_br(cond);
+    // cond
+    builder->set_insert_point(cond);
+    node.condition->accept(*this);
+    builder->create_cond_br(visitor_return_value, body, end);
+    // body
+    builder->set_insert_point(body);
+    for (auto &stmt : node.body) {
+        stmt->accept(*this);
+    }
+    builder->create_br(cond);
+    // end
+    builder->set_insert_point(end);
 }
 void LightWalker::visit(parser::IndexExpr &node) {
     // TODO: Implement this
