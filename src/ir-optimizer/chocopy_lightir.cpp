@@ -5,6 +5,7 @@
 #include <ranges>
 #include <regex>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 #include "BasicBlock.hpp"
@@ -14,7 +15,9 @@
 #include "Function.hpp"
 #include "FunctionDefType.hpp"
 #include "GlobalVariable.hpp"
+#include "IRBuilder.hpp"
 #include "Module.hpp"
+#include "SymbolType.hpp"
 #include "Type.hpp"
 #include "Value.hpp"
 #include "chocopy_parse.hpp"
@@ -345,6 +348,32 @@ void LightWalker::visit([[maybe_unused]] parser::NoneLiteral &node) {
 
 void LightWalker::visit(parser::AssignStmt &node) {
     // TODO: Implement this
+    node.value->accept(*this);
+    auto value = visitor_return_value;
+    for (auto &target : node.targets) {
+        get_lvalue = true;
+        target->accept(*this);
+        get_lvalue = false;
+        auto addr = visitor_return_value;
+        if (node.value->inferredType->get_name() == "int") {
+            if (target->inferredType->get_name() == "int") {
+                builder->create_store(value, addr);
+            } else {
+                auto int_object = builder->create_call(makeint_fun, {value});
+                builder->create_store(int_object, addr);
+            }
+        } else if (node.value->inferredType->get_name() == "bool") {
+            if (target->inferredType->get_name() == "bool") {
+                builder->create_store(value, addr);
+            } else {
+                auto bool_object = builder->create_call(makebool_fun, {value});
+                builder->create_store(bool_object, addr);
+            }
+        } else if (node.value->inferredType->get_name() == "str") {
+            builder->create_store(value, addr);
+        }
+        // TODO Class
+    }
 }
 void LightWalker::visit(parser::BinaryExpr &node) {
     // TODO: Implement this, this is not complete
@@ -362,6 +391,46 @@ void LightWalker::visit(parser::BinaryExpr &node) {
         } else {
             result = builder->create_call(concat_fun, {v1, v2});
         }
+    } else if (node.operator_ == "==") {
+        if (node.left->inferredType->get_name() == "int") {
+            result = builder->create_icmp_eq(v1, v2);
+        } else if (node.left->inferredType->get_name() == "str") {
+            result = builder->create_call(streql_fun, {v1, v2});
+            result->set_type(ptr_str_type);
+        } else {
+            auto zext_int_1 = builder->create_zext(v1, i32_type);
+            auto zext_int_2 = builder->create_zext(v2, i32_type);
+            result = builder->create_icmp_eq(zext_int_1, zext_int_2);
+        }
+    } else if (node.operator_ == "!=") {
+        if (node.left->inferredType->get_name() == "int") {
+            result = builder->create_icmp_ne(v1, v2);
+        } else if (node.left->inferredType->get_name() == "str") {
+            result = builder->create_call(strneql_fun, {v1, v2});
+            result->set_type(ptr_str_type);
+        } else {
+            auto zext_int_1 = builder->create_zext(v1, i32_type);
+            auto zext_int_2 = builder->create_zext(v2, i32_type);
+            result = builder->create_icmp_ne(zext_int_1, zext_int_2);
+        }
+    } else if (node.operator_ == "*") {
+        result = builder->create_imul(v1, v2);
+    } else if (node.operator_ == "-") {
+        result = builder->create_isub(v1, v2);
+    } else if (node.operator_ == "//") {
+        result = builder->create_isdiv(v1, v2);
+    } else if (node.operator_ == "%") {
+        result = builder->create_irem(v1, v2);
+    } else if (node.operator_ == "and" || node.operator_ == "or") {
+        // ! TODO: short circuit
+    } else if (node.operator_ == ">") {
+        result = builder->create_icmp_gt(v1, v2);
+    } else if (node.operator_ == ">=") {
+        result = builder->create_icmp_ge(v1, v2);
+    } else if (node.operator_ == "<") {
+        result = builder->create_icmp_lt(v1, v2);
+    } else if (node.operator_ == "<=") {
+        result = builder->create_icmp_le(v1, v2);
     } else {
         assert(false);
     }
@@ -383,6 +452,20 @@ void LightWalker::visit(parser::CallExpr &node) {
         } else {
             builder->create_call(print_fun, {v1});
         }
+    } else if (func_name == "len") {
+        // ! Now only support str
+        node.args.at(0)->accept(*this);
+        auto v1 = this->visitor_return_value;
+        auto ret_val = builder->create_call(len_fun, {v1});
+        visitor_return_value = ret_val;
+    } else {
+        auto func = dynamic_cast<Function *>(scope.find_in_global(func_name));
+        vector<Value *> arg_list;
+        for (auto &arg : node.args) {
+            arg->accept(*this);
+            arg_list.push_back(visitor_return_value);
+        }
+        visitor_return_value = builder->create_call(func, arg_list);
     }
 }
 void LightWalker::visit(parser::ClassDef &node) {
@@ -396,9 +479,62 @@ void LightWalker::visit(parser::ForStmt &node) {
 }
 void LightWalker::visit(parser::FuncDef &node) {
     // TODO: Implement this
+    // Semantic type
+    auto func_semantic_type =
+        sym->declares<semantic::FunctionDefType>(node.name->name);
+
+    // FunctionType
+    auto global_func_llvm_type = dynamic_cast<FunctionType *>(
+        semantic_type_to_llvm_type(func_semantic_type));
+
+    // global_func_name
+    auto global_func_name = "$" + node.name->name;
+
+    // func
+    auto func =
+        Function::create(global_func_llvm_type, global_func_name, module.get());
+    scope.push_in_global(node.name->name, func);
+
+    // basicblocks
+    auto prev_basic_block = builder->get_insert_block();
+    auto new_basic_block = BasicBlock::create(module.get(), "", func);
+    builder->set_insert_point(new_basic_block);
+
+    auto prev_sym = sym;
+    sym = &func_semantic_type->current_scope;
+
+    scope.enter();
+
+    for (int i = 0; i < node.params.size(); ++i) {
+        auto &param = node.params[i];
+        auto param_semantic_type = sym->declares(param->identifier->name);
+        auto param_llvm_type = semantic_type_to_llvm_type(param_semantic_type);
+        auto param_ptr = builder->create_alloca(param_llvm_type);
+        scope.push(param->identifier->name, param_ptr);
+        builder->create_store(new Value(param_llvm_type, "arg" + to_string(i)),
+                              param_ptr);
+    }
+
+    for (auto &decl : node.declarations) {
+        decl->accept(*this);
+    }
+
+    for (auto &stmt : node.statements) {
+        stmt->accept(*this);
+    }
+    builder->set_insert_point(prev_basic_block);
+    scope.exit();
+    sym = prev_sym;
 }
 void LightWalker::visit(parser::Ident &node) {
     // TODO: Implement this
+    auto value = scope.find(node.name);
+    assert(value);
+    if (get_lvalue) {
+        visitor_return_value = value;
+    } else {
+        visitor_return_value = builder->create_load(value);
+    }
 }
 void LightWalker::visit(parser::IfExpr &node) {
     // TODO: Implement this
@@ -450,32 +586,63 @@ void LightWalker::visit(parser::MethodCallExpr &node) {
 }
 void LightWalker::visit(parser::ReturnStmt &node) {
     // TODO: Implement this
+    node.value->accept(*this);
+    builder->create_ret(visitor_return_value);
 }
 void LightWalker::visit(parser::StringLiteral &node) {
     // TODO: Implement this
+    auto const_id = get_const_type_id();
+    auto const_str_value = ConstantStr::get(node.value, const_id, module.get());
+    auto const_str =
+        GlobalVariable::create("const_" + to_string(const_id), module.get(),
+                               ptr_str_type, false, const_str_value);
+    // builder->create_store(const_str, ptr_const_str);
+    visitor_return_value = const_str;
 }
 void LightWalker::visit(parser::UnaryExpr &node) {
     // TODO: Implement this
+    Instruction *result;
+    node.operand->accept(*this);
+    auto var = this->visitor_return_value;
+    if (node.operator_ == "-") {
+        result = builder->create_ineg(var);
+    } else if (node.operator_ == "not") {
+        result = builder->create_not(var);
+    } else {
+        assert(false);
+    }
+    visitor_return_value = result;
 }
 void LightWalker::visit(parser::VarDef &node) {
     // TODO: Implement this, this is not complete
     // ! str, Class & local variables
     if (scope.in_global()) {
+        GlobalVariable *var = nullptr;
         if (node.var->type->get_name() == "int") {
-            GlobalVariable::create(
+            var = GlobalVariable::create(
                 node.var->identifier->name, module.get(),
                 IntegerType::get(32, module.get()), false,
                 ConstantInt::get(node.value->int_value, module.get()));
         } else if (node.var->type->get_name() == "bool") {
             auto bool_value =
                 dynamic_cast<parser::BoolLiteral *>(node.value.get());
-            GlobalVariable::create(
+            var = GlobalVariable::create(
                 node.var->identifier->name, module.get(),
                 IntegerType::get(1, module.get()), false,
                 ConstantInt::get(bool_value->bin_value, module.get()));
         } else {
-            assert(0);
+            if (node.var->type->get_name() == "str") {
+                node.value->accept(*this);
+                auto str_addr = visitor_return_value;
+                var = GlobalVariable::create(node.var->identifier->name,
+                                             module.get(), ptr_str_type, false,
+                                             ConstantNull::get(ptr_str_type));
+                builder->create_store(str_addr, var);
+            } else {
+                assert(0);
+            }
         }
+        scope.push_in_global(node.var->identifier->name, var);
     } else {
         assert(0);
     }
