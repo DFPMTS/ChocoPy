@@ -350,7 +350,8 @@ void LightWalker::visit(parser::Program &node) {
             // func
             auto func = Function::create(global_func_llvm_type,
                                          global_func_name, module.get());
-            scope.push_in_global(func_def->name->name, func);
+            // scope.push_in_global(func_def->name->name, func);
+            scope.push_in_global(global_func_name, func);
         } else {
             decl->accept(*this);
         }
@@ -507,7 +508,8 @@ void LightWalker::visit(parser::CallExpr &node) {
         visitor_return_value = ret_val;
     } else {
         // is Global function ?
-        auto func = dynamic_cast<Function *>(scope.find_in_global(func_name));
+        auto func =
+            dynamic_cast<Function *>(scope.find_in_global("$" + func_name));
         vector<Value *> arg_list;
         for (auto &arg : node.args) {
             arg->accept(*this);
@@ -600,7 +602,9 @@ void LightWalker::visit(parser::ClassDef &node) {
             auto func = Function::create(
                 func_llvm_type, "$" + node.get_id()->name + "." + func_name,
                 module.get());
-            scope.push_in_global(func_name, func);
+            // scope.push_in_global(func_name, func);
+            scope.push_in_global("$" + node.get_id()->name + "." + func_name,
+                                 func);
             current_class->add_method(func);
         }
     }
@@ -646,7 +650,10 @@ void LightWalker::visit(parser::FuncDef &node) {
     auto global_func_name = get_unique_func_name(func_semantic_type);
 
     // func
-    auto func = dynamic_cast<Function *>(scope.find_in_global(node.name->name));
+    // auto func = dynamic_cast<Function
+    // *>(scope.find_in_global(node.name->name));
+    auto func =
+        dynamic_cast<Function *>(scope.find_in_global(global_func_name));
 
     // basic blocks
     auto prev_basic_block = builder->get_insert_block();
@@ -711,14 +718,10 @@ void LightWalker::visit(parser::MemberExpr &node) {
     node.object->accept(*this);
     get_lvalue = saved_is_lvalue;
     auto current_func = builder->get_insert_block()->get_parent();
-
     auto object = visitor_return_value;
-
     auto cond =
         builder->create_icmp_eq(object, new ConstantNull(object->get_type()));
-
     auto op_on_none = new BasicBlock(module.get(), "", current_func);
-
     auto end = new BasicBlock(module.get(), "", current_func);
 
     builder->create_cond_br(cond, op_on_none, end);
@@ -732,21 +735,48 @@ void LightWalker::visit(parser::MemberExpr &node) {
 
     object->set_type(PtrType::get(object_def->type_));
     auto attr_offset = object_def->get_attr_offset(node.member->name);
+    if (attr_offset < object_def->get_attribute()->size()) {
+        // attribute
+        auto attr_ptr = builder->create_gep(object, CONST(attr_offset + 3));
 
-    auto attr_ptr =
-        builder->create_gep(object, new ConstantInt(i32_type, attr_offset + 3));
+        if (node.inferredType->get_name() == "int")
+            attr_ptr->set_type(PtrType::get(i32_type));
+        else if (node.inferredType->get_name() == "bool")
+            attr_ptr->set_type(PtrType::get(i1_type));
+        else if (node.inferredType->get_name() == "str")
+            attr_ptr->set_type(ptr_str_type);
 
-    if (node.inferredType->get_name() == "int")
-        attr_ptr->set_type(PtrType::get(i32_type));
-    else if (node.inferredType->get_name() == "bool")
-        attr_ptr->set_type(PtrType::get(i1_type));
-    else if (node.inferredType->get_name() == "str")
-        attr_ptr->set_type(ptr_str_type);
+        if (get_lvalue)
+            visitor_return_value = attr_ptr;
+        else
+            visitor_return_value = builder->create_load(attr_ptr);
+    } else {
+        // method
+        // dispatch table ptr
+        auto dispatch_table_ptr = builder->create_gep(object, CONST(2));
 
-    if (get_lvalue)
-        visitor_return_value = attr_ptr;
-    else
-        visitor_return_value = builder->create_load(attr_ptr);
+        dispatch_table_ptr->set_type(PtrType::get(PtrType::get(
+            LabelType::get(object_def->dispatch_table_label_ + "_type",
+                           object_def, object_def->get_module()))));
+
+        auto dispatch_table = builder->create_load(dispatch_table_ptr);
+
+        dispatch_table->set_type(PtrType::get(
+            LabelType::get(object_def->dispatch_table_label_ + "_type",
+                           object_def, object_def->get_module())));
+
+        auto method_offset = object_def->get_method_offset(node.member->name);
+
+        auto method_ptr =
+            builder->create_gep(dispatch_table, CONST(method_offset));
+        auto func_type =
+            object_def->get_method()->at(method_offset)->get_function_type();
+        method_ptr->set_type(PtrType::get(PtrType::get(func_type)));
+        auto func = builder->create_load(method_ptr);
+        visitor_return_value = func;
+        visitor_return_type = func_type;
+        visitor_return_object = object;
+    }
 }
 void LightWalker::visit(parser::IfStmt &node) {
     node.condition->accept(*this);
@@ -783,6 +813,16 @@ void LightWalker::visit(parser::IfStmt &node) {
 }
 void LightWalker::visit(parser::MethodCallExpr &node) {
     // TODO: Implement this
+    node.method->accept(*this);
+    auto func = visitor_return_value;
+    auto func_type = visitor_return_type;
+    auto object = visitor_return_object;
+    vector<Value *> arg_list = {object};
+    for (auto &arg : node.args) {
+        arg->accept(*this);
+        arg_list.push_back(visitor_return_value);
+    }
+    visitor_return_value = builder->create_call(func, func_type, arg_list);
 }
 void LightWalker::visit(parser::ReturnStmt &node) {
     // TODO: Implement this
@@ -850,11 +890,34 @@ void LightWalker::visit(parser::VarDef &node) {
             var = GlobalVariable::create(node.var->identifier->name,
                                          module.get(), ptr_var_type, false,
                                          ConstantNull::get(ptr_var_type));
-            assert(0);
         }
 
         scope.push_in_global(node.var->identifier->name, var);
     } else {
+        Value *var;
+        if (node.var->type->get_name() == "int") {
+            var = builder->create_alloca(i32_type);
+            builder->create_store(
+                ConstantInt::get(node.value->int_value, module.get()), var);
+        } else if (node.var->type->get_name() == "bool") {
+            auto bool_value =
+                dynamic_cast<parser::BoolLiteral *>(node.value.get());
+            var = builder->create_alloca(i1_type);
+            builder->create_store(
+                ConstantInt::get(bool_value->bin_value, module.get()), var);
+        } else if (node.var->type->get_name() == "str") {
+            node.value->accept(*this);
+            auto str_addr = visitor_return_value;
+            var = builder->create_alloca(ptr_str_type);
+            builder->create_store(str_addr, var);
+        } else {
+            auto var_type = dynamic_cast<Class *>(
+                scope.find_in_global(node.var->type->get_name()));
+            auto ptr_var_type = PtrType::get(var_type);
+            var = builder->create_alloca(ptr_var_type);
+            builder->create_store(ConstantNull::get(ptr_var_type), var);
+        }
+        scope.push(node.var->identifier->name, var);
         assert(0);
     }
 }
