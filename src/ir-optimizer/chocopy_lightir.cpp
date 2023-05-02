@@ -1,6 +1,7 @@
 #include "chocopy_lightir.hpp"
 
 #include <cassert>
+#include <exception>
 #include <fstream>
 #include <ranges>
 #include <regex>
@@ -297,6 +298,24 @@ void LightWalker::visit(parser::PassStmt &) {}
 void LightWalker::visit(parser::GlobalDecl &) {}
 void LightWalker::visit(parser::NonlocalDecl &) {}
 
+string get_unique_func_name(semantic::FunctionDefType *func_def_type) {
+    auto parent_sym = func_def_type->current_scope.parent;
+    auto parent_parent_sym = parent_sym->parent;
+    // 1. global->function
+    if (!parent_parent_sym) {
+        return "$" + func_def_type->get_name();
+    }
+    // 2. global->class->method
+    for (auto &e : parent_parent_sym->tab) {
+        auto parent_class =
+            dynamic_cast<semantic::ClassDefType *>(e.second.get());
+        if (parent_class && &(parent_class->current_scope) == parent_sym) {
+            return "$" + parent_class->class_name + "." +
+                   func_def_type->get_name();
+        }
+    }
+}
+
 /*
  * Analyze PROGRAM, creating Info objects for all symbols.
  * Populate the global symbol table.
@@ -315,7 +334,31 @@ void LightWalker::visit(parser::Program &node) {
 
     // TODO: maybe you have to add/modifiy some code here, it is up to you
     for (const auto &decl : node.declarations) {
-        decl->accept(*this);
+        if (auto func_def = dynamic_cast<parser::FuncDef *>(decl.get());
+            func_def) {
+            // Semantic type
+            auto func_semantic_type =
+                sym->declares<semantic::FunctionDefType>(func_def->name->name);
+
+            // FunctionType
+            auto global_func_llvm_type = dynamic_cast<FunctionType *>(
+                semantic_type_to_llvm_type(func_semantic_type));
+
+            // global_func_name
+            auto global_func_name = get_unique_func_name(func_semantic_type);
+
+            // func
+            auto func = Function::create(global_func_llvm_type,
+                                         global_func_name, module.get());
+            scope.push_in_global(func_def->name->name, func);
+        } else {
+            decl->accept(*this);
+        }
+    }
+    for (const auto &decl : node.declarations) {
+        if (dynamic_cast<parser::FuncDef *>(decl.get())) {
+            decl->accept(*this);
+        }
     }
     for (const auto &stmt : node.statements) {
         stmt->accept(*this);
@@ -370,6 +413,8 @@ void LightWalker::visit(parser::AssignStmt &node) {
                 builder->create_store(bool_object, addr);
             }
         } else if (node.value->inferredType->get_name() == "str") {
+            builder->create_store(value, addr);
+        } else {
             builder->create_store(value, addr);
         }
         // TODO Class
@@ -431,6 +476,8 @@ void LightWalker::visit(parser::BinaryExpr &node) {
         result = builder->create_icmp_lt(v1, v2);
     } else if (node.operator_ == "<=") {
         result = builder->create_icmp_le(v1, v2);
+    } else if (node.operator_ == "is") {
+        result = builder->create_icmp_eq(v1, v2);
     } else {
         assert(false);
     }
@@ -446,7 +493,7 @@ void LightWalker::visit(parser::CallExpr &node) {
             auto t = builder->create_call(makeint_fun, {v1});
             builder->create_call(print_fun, {t});
         } else if (node.args.at(0)->inferredType->get_name() == "bool") {
-            v1->set_type(IntegerType::get(1, module.get()));
+            v1->set_type(i1_type);
             auto t = builder->create_call(makebool_fun, {v1});
             builder->create_call(print_fun, {t});
         } else {
@@ -459,24 +506,131 @@ void LightWalker::visit(parser::CallExpr &node) {
         auto ret_val = builder->create_call(len_fun, {v1});
         visitor_return_value = ret_val;
     } else {
+        // is Global function ?
         auto func = dynamic_cast<Function *>(scope.find_in_global(func_name));
         vector<Value *> arg_list;
         for (auto &arg : node.args) {
             arg->accept(*this);
             arg_list.push_back(visitor_return_value);
         }
-        visitor_return_value = builder->create_call(func, arg_list);
+        if (func) {
+            // Global function
+            visitor_return_value = builder->create_call(func, arg_list);
+        } else {
+            // Class initialization
+            auto class_prototype =
+                dynamic_cast<Class *>(scope.find_in_global(func_name));
+
+            visitor_return_value =
+                builder->create_call(alloc_fun, {class_prototype});
+
+            auto init_func = class_prototype->get_method()->at(0);
+            builder->create_call(init_func, {visitor_return_value});
+        }
     }
 }
 void LightWalker::visit(parser::ClassDef &node) {
     // TODO: Implement this
+    auto class_def = sym->get<semantic::ClassDefType>(node.name->name);
+    auto super_class_def =
+        sym->get<semantic::ClassDefType>(node.superClass->name);
+
+    auto prev_sym = sym;
+    sym = &class_def->current_scope;
+    // search for super class
+    Class *super_class = nullptr;
+    for (auto &class_defined : module->get_class()) {
+        if (class_defined->name_ == node.superClass->name) {
+            super_class = class_defined;
+        }
+    }
+    // current class
+    auto current_class = new Class(module.get(), node.name->name,
+                                   get_next_type_id(), super_class);
+    // install current class
+    scope.push(node.get_id()->name, current_class);
+
+    // add super class attributes
+    for (auto &attr : *super_class->get_attribute()) {
+        current_class->add_attribute(attr);
+    }
+    // add super class method
+    for (auto &method : *super_class->get_method()) {
+        current_class->add_method(method);
+    }
+    // Attributes first
+    for (auto &decl : node.declaration) {
+        if (auto var_def = dynamic_cast<parser::VarDef *>(decl.get());
+            var_def) {
+            auto attr_name = var_def->get_id()->name;
+            if (super_class_def->current_scope.declares(attr_name)) continue;
+
+            dynamic_cast<::parser::ClassType *>(var_def->var->type.get())
+                ->accept(*this);
+            auto var_type = visitor_return_type;
+            AttrInfo *attr = nullptr;
+            if (var_type->is_integer_type()) {
+                attr = new AttrInfo(var_type, attr_name,
+                                    var_def->value->int_value);
+            } else if (var_type->is_bool_type()) {
+                attr = new AttrInfo(
+                    var_type, attr_name,
+                    dynamic_cast<parser::BoolLiteral *>(var_def->value.get())
+                        ->bin_value);
+            } else if (var_type == ptr_str_type) {
+                dynamic_cast<parser::StringLiteral *>(var_def->value.get())
+                    ->accept(*this);
+                attr = new AttrInfo(var_type, attr_name, visitor_return_value);
+            } else {
+                attr = new AttrInfo(var_type, attr_name);
+            }
+            current_class->add_attribute(attr);
+        }
+    }
+    // (override) methods
+    for (auto &decl : node.declaration) {
+        if (auto func_def = dynamic_cast<parser::FuncDef *>(decl.get());
+            func_def) {
+            auto func_name = func_def->get_id()->name;
+            auto func_def_type =
+                sym->declares<semantic::FunctionDefType>(func_name);
+            auto func_llvm_type = dynamic_cast<FunctionType *>(
+                semantic_type_to_llvm_type(func_def_type));
+
+            auto func = Function::create(
+                func_llvm_type, "$" + node.get_id()->name + "." + func_name,
+                module.get());
+            scope.push_in_global(func_name, func);
+            current_class->add_method(func);
+        }
+    }
+    for (auto &decl : node.declaration) {
+        if (auto func_def = dynamic_cast<parser::FuncDef *>(decl.get());
+            func_def) {
+            func_def->accept(*this);
+            // TODO : method in FuncDef
+        }
+    }
+    sym = prev_sym;
 }
 void LightWalker::visit(parser::ClassType &node) {
     // TODO: Implement this
+    if (node.className == "int") {
+        visitor_return_type = i32_type;
+    } else if (node.className == "bool") {
+        visitor_return_type = i1_type;
+    } else if (node.className == "str") {
+        visitor_return_type = ptr_str_type;
+    } else {
+        auto contained_class =
+            dynamic_cast<Class *>(scope.find_in_global(node.className));
+        visitor_return_type = PtrType::get(contained_class);
+    }
 }
 void LightWalker::visit(parser::ForStmt &node) {
     // TODO: Implement this
 }
+
 void LightWalker::visit(parser::FuncDef &node) {
     // TODO: Implement this
     // Semantic type
@@ -487,15 +641,14 @@ void LightWalker::visit(parser::FuncDef &node) {
     auto global_func_llvm_type = dynamic_cast<FunctionType *>(
         semantic_type_to_llvm_type(func_semantic_type));
 
+    // TODO method
     // global_func_name
-    auto global_func_name = "$" + node.name->name;
+    auto global_func_name = get_unique_func_name(func_semantic_type);
 
     // func
-    auto func =
-        Function::create(global_func_llvm_type, global_func_name, module.get());
-    scope.push_in_global(node.name->name, func);
+    auto func = dynamic_cast<Function *>(scope.find_in_global(node.name->name));
 
-    // basicblocks
+    // basic blocks
     auto prev_basic_block = builder->get_insert_block();
     auto new_basic_block = BasicBlock::create(module.get(), "", func);
     builder->set_insert_point(new_basic_block);
@@ -522,6 +675,12 @@ void LightWalker::visit(parser::FuncDef &node) {
     for (auto &stmt : node.statements) {
         stmt->accept(*this);
     }
+    // return none
+    // if () {
+    if (!node.returnType || (node.returnType->get_name() != "int" &&
+                             node.returnType->get_name() != "bool"))
+        builder->create_ret(new ConstantNull(func->get_return_type()));
+    // }
     builder->set_insert_point(prev_basic_block);
     scope.exit();
     sym = prev_sym;
@@ -547,6 +706,47 @@ void LightWalker::visit(parser::ListType &node) {
 }
 void LightWalker::visit(parser::MemberExpr &node) {
     // TODO: Implement this
+    auto saved_is_lvalue = get_lvalue;
+    get_lvalue = false;
+    node.object->accept(*this);
+    get_lvalue = saved_is_lvalue;
+    auto current_func = builder->get_insert_block()->get_parent();
+
+    auto object = visitor_return_value;
+
+    auto cond =
+        builder->create_icmp_eq(object, new ConstantNull(object->get_type()));
+
+    auto op_on_none = new BasicBlock(module.get(), "", current_func);
+
+    auto end = new BasicBlock(module.get(), "", current_func);
+
+    builder->create_cond_br(cond, op_on_none, end);
+    builder->set_insert_point(op_on_none);
+    builder->create_call(error_none_fun, {});
+    builder->create_br(end);
+    builder->set_insert_point(end);
+
+    auto object_def = dynamic_cast<Class *>(
+        scope.find_in_global(node.object->inferredType->get_name()));
+
+    object->set_type(PtrType::get(object_def->type_));
+    auto attr_offset = object_def->get_attr_offset(node.member->name);
+
+    auto attr_ptr =
+        builder->create_gep(object, new ConstantInt(i32_type, attr_offset + 3));
+
+    if (node.inferredType->get_name() == "int")
+        attr_ptr->set_type(PtrType::get(i32_type));
+    else if (node.inferredType->get_name() == "bool")
+        attr_ptr->set_type(PtrType::get(i1_type));
+    else if (node.inferredType->get_name() == "str")
+        attr_ptr->set_type(ptr_str_type);
+
+    if (get_lvalue)
+        visitor_return_value = attr_ptr;
+    else
+        visitor_return_value = builder->create_load(attr_ptr);
 }
 void LightWalker::visit(parser::IfStmt &node) {
     node.condition->accept(*this);
@@ -586,6 +786,11 @@ void LightWalker::visit(parser::MethodCallExpr &node) {
 }
 void LightWalker::visit(parser::ReturnStmt &node) {
     // TODO: Implement this
+    // return void
+    if (!node.value) {
+        auto func = builder->create_ret(new ConstantNull(ptr_obj_type));
+        return;
+    }
     node.value->accept(*this);
 
     if (node.value->inferredType->get_name() == "bool")
@@ -623,28 +828,31 @@ void LightWalker::visit(parser::VarDef &node) {
         GlobalVariable *var = nullptr;
         if (node.var->type->get_name() == "int") {
             var = GlobalVariable::create(
-                node.var->identifier->name, module.get(),
-                IntegerType::get(32, module.get()), false,
+                node.var->identifier->name, module.get(), i32_type, false,
                 ConstantInt::get(node.value->int_value, module.get()));
         } else if (node.var->type->get_name() == "bool") {
             auto bool_value =
                 dynamic_cast<parser::BoolLiteral *>(node.value.get());
             var = GlobalVariable::create(
-                node.var->identifier->name, module.get(),
-                IntegerType::get(1, module.get()), false,
+                node.var->identifier->name, module.get(), i1_type, false,
                 ConstantInt::get(bool_value->bin_value, module.get()));
+        } else if (node.var->type->get_name() == "str") {
+            node.value->accept(*this);
+            auto str_addr = visitor_return_value;
+            var = GlobalVariable::create(node.var->identifier->name,
+                                         module.get(), ptr_str_type, false,
+                                         ConstantNull::get(ptr_str_type));
+            builder->create_store(str_addr, var);
         } else {
-            if (node.var->type->get_name() == "str") {
-                node.value->accept(*this);
-                auto str_addr = visitor_return_value;
-                var = GlobalVariable::create(node.var->identifier->name,
-                                             module.get(), ptr_str_type, false,
-                                             ConstantNull::get(ptr_str_type));
-                builder->create_store(str_addr, var);
-            } else {
-                assert(0);
-            }
+            auto var_type = dynamic_cast<Class *>(
+                scope.find_in_global(node.var->type->get_name()));
+            auto ptr_var_type = PtrType::get(var_type);
+            var = GlobalVariable::create(node.var->identifier->name,
+                                         module.get(), ptr_var_type, false,
+                                         ConstantNull::get(ptr_var_type));
+            assert(0);
         }
+
         scope.push_in_global(node.var->identifier->name, var);
     } else {
         assert(0);

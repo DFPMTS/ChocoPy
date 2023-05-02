@@ -9,6 +9,9 @@ string print_as_op(Value *v, bool print_ty, const string &method_) {
     string op_ir;
     if (print_ty && !dynamic_cast<BasicBlock *>(v)) {
         op_ir += v->get_type()->print();
+        // ! a work around for "@alloc_object(%$B$prototype_type @$B$prototype)"
+        auto is_class = dynamic_cast<Class *>(v);
+        if (is_class) op_ir += "*";
         op_ir += " ";
     }
 
@@ -28,7 +31,12 @@ string print_as_op(Value *v, bool print_ty, const string &method_) {
                dynamic_cast<Class *>(v)->is_class_anon()) {
         op_ir += "%arg0";
     } else {
-        op_ir += "%" + v->get_name();
+        // ! Replace with prototype
+        auto is_class = dynamic_cast<Class *>(v);
+        if (is_class)
+            op_ir += "@" + is_class->prototype_label_;
+        else
+            op_ir += "%" + v->get_name();
     }
 
     return op_ir;
