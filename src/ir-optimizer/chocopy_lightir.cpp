@@ -21,6 +21,7 @@
 #include "SymbolType.hpp"
 #include "Type.hpp"
 #include "Value.hpp"
+#include "ValueType.hpp"
 #include "chocopy_parse.hpp"
 #include "chocopy_semant.hpp"
 
@@ -494,7 +495,6 @@ void LightWalker::visit(parser::CallExpr &node) {
             auto t = builder->create_call(makeint_fun, {v1});
             builder->create_call(print_fun, {t});
         } else if (node.args.at(0)->inferredType->get_name() == "bool") {
-            v1->set_type(i1_type);
             auto t = builder->create_call(makebool_fun, {v1});
             builder->create_call(print_fun, {t});
         } else {
@@ -506,6 +506,8 @@ void LightWalker::visit(parser::CallExpr &node) {
         auto v1 = this->visitor_return_value;
         auto ret_val = builder->create_call(len_fun, {v1});
         visitor_return_value = ret_val;
+    } else if (func_name == "int" || func_name == "bool") {
+        visitor_return_value = CONST(0);
     } else {
         // is Global function ?
         auto func =
@@ -522,10 +524,8 @@ void LightWalker::visit(parser::CallExpr &node) {
             // Class initialization
             auto class_prototype =
                 dynamic_cast<Class *>(scope.find_in_global(func_name));
-
             visitor_return_value =
                 builder->create_call(alloc_fun, {class_prototype});
-
             auto init_func = class_prototype->get_method()->at(0);
             builder->create_call(init_func, {visitor_return_value});
         }
@@ -707,6 +707,24 @@ void LightWalker::visit(parser::IfExpr &node) {
 }
 void LightWalker::visit(parser::ListExpr &node) {
     // TODO: Implement this
+    auto element_type =
+        dynamic_cast<semantic::ListValueType *>(node.inferredType.get())
+            ->element_type;
+    auto element_llvm_type = semantic_type_to_llvm_type(element_type.get());
+    vector<Value *> arg_list = {CONST(int(node.elements.size()))};
+    for (auto &e : node.elements) {
+        e->accept(*this);
+        if (element_type->get_name() == "int" ||
+            element_type->get_name() == "bool")
+            visitor_return_value->set_type(i32_type);
+        else {
+            visitor_return_value =
+                builder->create_ptrtoint(visitor_return_value, i32_type);
+        }
+        arg_list.push_back(visitor_return_value);
+    }
+    auto list = builder->create_call(construct_list_fun, arg_list);
+    visitor_return_value = list;
 }
 void LightWalker::visit(parser::ListType &node) {
     // TODO: Implement this
@@ -883,13 +901,19 @@ void LightWalker::visit(parser::VarDef &node) {
                                          module.get(), ptr_str_type, false,
                                          ConstantNull::get(ptr_str_type));
             builder->create_store(str_addr, var);
-        } else {
-            auto var_type = dynamic_cast<Class *>(
-                scope.find_in_global(node.var->type->get_name()));
+        } else if (auto var_type = dynamic_cast<Class *>(
+                       scope.find_in_global(node.var->type->get_name()));
+                   var_type) {
+            // Class
             auto ptr_var_type = PtrType::get(var_type);
             var = GlobalVariable::create(node.var->identifier->name,
                                          module.get(), ptr_var_type, false,
                                          ConstantNull::get(ptr_var_type));
+        } else {
+            // List
+            var = GlobalVariable::create(node.var->identifier->name,
+                                         module.get(), ptr_list_type, false,
+                                         ConstantNull::get(ptr_list_type));
         }
 
         scope.push_in_global(node.var->identifier->name, var);
@@ -948,6 +972,41 @@ void LightWalker::visit(parser::WhileStmt &node) {
 }
 void LightWalker::visit(parser::IndexExpr &node) {
     // TODO: Implement this
+    auto saved_is_lvalue = get_lvalue;
+    get_lvalue = false;
+    // evaluate list
+    node.list->accept(*this);
+    auto list = visitor_return_value;
+    // evaluate index
+    node.index->accept(*this);
+    auto index = visitor_return_value;
+    get_lvalue = saved_is_lvalue;
+
+    auto ptr_array_addr = builder->create_gep(list, CONST(4));
+    ptr_array_addr->set_type(ptr_ptr_obj_type);
+    auto ptr_array = builder->create_load(ptr_array_addr);
+    if (node.inferredType->get_name() == "int" ||
+        node.inferredType->get_name() == "bool")
+        ptr_array->set_type(PtrType::get(i32_type));
+    else if (node.inferredType->get_name() == "str")
+        ptr_array->set_type(ptr_i8_type);
+    else {
+        auto class_name = node.inferredType->get_name();
+        auto object = dynamic_cast<Class *>(scope.find_in_global(class_name));
+        ptr_array->set_type(PtrType::get(PtrType::get(object)));
+    }
+    auto element_addr = builder->create_gep(ptr_array, index);
+    if (get_lvalue)
+        visitor_return_value = element_addr;
+    else {
+        if (node.inferredType->get_name() == "str") {
+            auto char_val = builder->create_load(element_addr);
+            visitor_return_value =
+                builder->create_call(makestr_fun, {char_val});
+        } else {
+            visitor_return_value = builder->create_load(element_addr);
+        }
+    }
 }
 }  // namespace lightir
 
