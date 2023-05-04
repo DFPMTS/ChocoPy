@@ -517,8 +517,7 @@ void LightWalker::visit(parser::CallExpr &node) {
         visitor_return_value = CONST(0);
     } else {
         // is Global function ?
-        auto func =
-            dynamic_cast<Function *>(scope.find_in_global("$" + func_name));
+        auto func = dynamic_cast<Function *>(scope.find("$" + func_name));
         vector<Value *> arg_list;
         for (auto &arg : node.args) {
             arg->accept(*this);
@@ -716,12 +715,11 @@ void LightWalker::visit(parser::FuncDef &node) {
 
     // TODO method
     // global_func_name
-    auto global_func_name = get_fully_qualified_name(func_semantic_type, true);
+    auto FQN_func_name = get_fully_qualified_name(func_semantic_type, true);
     // func
     // auto func = dynamic_cast<Function
     // *>(scope.find_in_global(node.name->name));
-    auto func =
-        dynamic_cast<Function *>(scope.find_in_global(global_func_name));
+    auto func = dynamic_cast<Function *>(scope.find(FQN_func_name));
 
     // basic blocks
     auto prev_basic_block = builder->get_insert_block();
@@ -744,13 +742,34 @@ void LightWalker::visit(parser::FuncDef &node) {
     }
 
     for (auto &decl : node.declarations) {
+        if (auto nested_func_def = dynamic_cast<parser::FuncDef *>(decl.get());
+            nested_func_def) {
+            // nested function definition
+            auto nested_func_name = nested_func_def->name->name;
+            auto nested_func_def_type =
+                sym->declares<semantic::FunctionDefType>(nested_func_name);
+            auto FQN_nested_func_name =
+                get_fully_qualified_name(nested_func_def_type, true);
+            auto nested_func_llvm_type = dynamic_cast<FunctionType *>(
+                semantic_type_to_llvm_type(nested_func_def_type));
+            auto nested_func = Function::create(nested_func_llvm_type,
+                                                nested_func_name, module.get());
+            // a workaround
+            // for CallExpr
+            scope.push("$" + nested_func_name, nested_func);
+            // for FuncDef (of nested function)
+            scope.push(FQN_nested_func_name, nested_func);
+        }
+    }
+
+    for (auto &decl : node.declarations) {
         decl->accept(*this);
     }
 
     for (auto &stmt : node.statements) {
         stmt->accept(*this);
     }
-    // return none
+    // a workaround to return None implicitly
     // if () {
     if (!node.returnType || (node.returnType->get_name() != "int" &&
                              node.returnType->get_name() != "bool"))
