@@ -566,9 +566,7 @@ void LightWalker::visit(parser::ClassDef &node) {
             var_def) {
             auto attr_name = var_def->get_id()->name;
             if (super_class_def->current_scope.declares(attr_name)) continue;
-
-            dynamic_cast<::parser::ClassType *>(var_def->var->type.get())
-                ->accept(*this);
+            var_def->var->type->accept(*this);
             auto var_type = visitor_return_type;
             AttrInfo *attr = nullptr;
             if (var_type->is_integer_type()) {
@@ -633,6 +631,63 @@ void LightWalker::visit(parser::ClassType &node) {
 }
 void LightWalker::visit(parser::ForStmt &node) {
     // TODO: Implement this
+    node.iterable->accept(*this);
+    auto iterable = visitor_return_value;
+    auto ptr_array_addr = builder->create_gep(iterable, CONST(4));
+    ptr_array_addr->set_type(ptr_ptr_obj_type);
+    auto ptr_array = builder->create_load(ptr_array_addr);
+    if (node.identifier->inferredType->get_name() == "int" ||
+        node.identifier->inferredType->get_name() == "bool")
+        ptr_array->set_type(PtrType::get(i32_type));
+    else if (node.identifier->inferredType->get_name() == "str")
+        ptr_array->set_type(ptr_i8_type);
+    else {
+        auto class_name = node.identifier->inferredType->get_name();
+        auto object = dynamic_cast<Class *>(scope.find_in_global(class_name));
+        ptr_array->set_type(PtrType::get(PtrType::get(object)));
+    }
+    auto array_len = builder->create_call(len_fun, {iterable});
+
+    auto i_counter = builder->create_alloca(i32_type);
+    builder->create_store(CONST(0), i_counter);
+
+    auto prev_basic_block = builder->get_insert_block();
+    auto cond =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto body =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto end =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    // jump to cond
+    builder->create_br(cond);
+    // cond
+    builder->set_insert_point(cond);
+    auto i_val = builder->create_load(i_counter);
+    auto cond_result = builder->create_icmp_lt(i_val, array_len);
+    builder->create_cond_br(cond_result, body, end);
+    // body
+    builder->set_insert_point(body);
+    i_val = builder->create_load(i_counter);
+    auto iter_addr = builder->create_gep(ptr_array, i_val);
+    Value *iter = nullptr;
+
+    if (node.identifier->inferredType->get_name() == "str") {
+        auto char_val = builder->create_load(iter_addr);
+        iter = builder->create_call(makestr_fun, {char_val});
+    } else {
+        iter = builder->create_load(iter_addr);
+    }
+
+    auto var = scope.find(node.identifier->name);
+    builder->create_store(iter, var);
+    for (auto &stmt : node.body) {
+        stmt->accept(*this);
+    }
+    auto i_plus_1 = builder->create_iadd(i_val, CONST(1));
+    builder->create_store(i_plus_1, i_counter);
+    builder->create_br(cond);
+    // end
+    builder->set_insert_point(end);
 }
 
 void LightWalker::visit(parser::FuncDef &node) {
@@ -704,30 +759,77 @@ void LightWalker::visit(parser::Ident &node) {
 }
 void LightWalker::visit(parser::IfExpr &node) {
     // TODO: Implement this
+    Type *result_type = nullptr;
+    auto type_name = node.inferredType->get_name();
+    if (type_name == "int")
+        result_type = i32_type;
+    else if (type_name == "bool")
+        result_type = i1_type;
+    else
+        result_type = dynamic_cast<Class *>(
+            scope.find_in_global(node.inferredType->get_name()));
+    auto result = builder->create_alloca(result_type);
+    auto prev_basic_block = builder->get_insert_block();
+    auto cond_block =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto then_block =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto else_block =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto end_block =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    // jump to cond
+    builder->create_br(cond_block);
+    // cond
+    builder->set_insert_point(cond_block);
+    node.condition->accept(*this);
+    builder->create_cond_br(visitor_return_value, then_block, else_block);
+    // then
+    builder->set_insert_point(then_block);
+    node.thenExpr->accept(*this);
+    builder->create_store(visitor_return_value, result);
+    builder->create_br(end_block);
+    // else
+    builder->set_insert_point(else_block);
+    node.elseExpr->accept(*this);
+    builder->create_store(visitor_return_value, result);
+    builder->create_br(end_block);
+    // end
+    builder->set_insert_point(end_block);
 }
 void LightWalker::visit(parser::ListExpr &node) {
     // TODO: Implement this
-    auto element_type =
-        dynamic_cast<semantic::ListValueType *>(node.inferredType.get())
-            ->element_type;
-    auto element_llvm_type = semantic_type_to_llvm_type(element_type.get());
-    vector<Value *> arg_list = {CONST(int(node.elements.size()))};
-    for (auto &e : node.elements) {
-        e->accept(*this);
-        if (element_type->get_name() == "int" ||
-            element_type->get_name() == "bool")
-            visitor_return_value->set_type(i32_type);
-        else {
-            visitor_return_value =
-                builder->create_ptrtoint(visitor_return_value, i32_type);
+    auto list_type =
+        dynamic_cast<semantic::ListValueType *>(node.inferredType.get());
+    if (list_type) {
+        // list (non-empty)
+        auto element_type = list_type->element_type;
+        auto element_llvm_type = semantic_type_to_llvm_type(element_type.get());
+        vector<Value *> arg_list = {CONST(int(node.elements.size()))};
+        for (auto &e : node.elements) {
+            e->accept(*this);
+            if (element_type->get_name() == "int" ||
+                element_type->get_name() == "bool")
+                visitor_return_value->set_type(i32_type);
+            else {
+                visitor_return_value =
+                    builder->create_ptrtoint(visitor_return_value, i32_type);
+            }
+            arg_list.push_back(visitor_return_value);
         }
-        arg_list.push_back(visitor_return_value);
+        auto list = builder->create_call(construct_list_fun, arg_list);
+        visitor_return_value = list;
+    } else {
+        // <Empty>
+        auto list =
+            builder->create_call(construct_list_fun, {CONST(0), CONST(0)});
+        visitor_return_value = list;
     }
-    auto list = builder->create_call(construct_list_fun, arg_list);
-    visitor_return_value = list;
 }
 void LightWalker::visit(parser::ListType &node) {
     // TODO: Implement this
+    node.elementType->accept(*this);
+    visitor_return_type = PtrType::get(visitor_return_type);
 }
 void LightWalker::visit(parser::MemberExpr &node) {
     // TODO: Implement this
@@ -757,17 +859,24 @@ void LightWalker::visit(parser::MemberExpr &node) {
         // attribute
         auto attr_ptr = builder->create_gep(object, CONST(attr_offset + 3));
 
-        if (node.inferredType->get_name() == "int")
-            attr_ptr->set_type(PtrType::get(i32_type));
-        else if (node.inferredType->get_name() == "bool")
-            attr_ptr->set_type(PtrType::get(i1_type));
-        else if (node.inferredType->get_name() == "str")
-            attr_ptr->set_type(ptr_str_type);
+        // if (node.inferredType->get_name() == "int")
+        //     attr_ptr->set_type(PtrType::get(i32_type));
+        // else if (node.inferredType->get_name() == "bool")
+        //     attr_ptr->set_type(PtrType::get(i1_type));
+        // else if (node.inferredType->get_name() == "str")
+        //     attr_ptr->set_type(ptr_str_type);
+        // else {
+        attr_ptr->set_type(
+            PtrType::get(object_def->get_offset_attr(attr_offset)));
+        // }
 
         if (get_lvalue)
             visitor_return_value = attr_ptr;
-        else
+        else {
             visitor_return_value = builder->create_load(attr_ptr);
+            visitor_return_value->set_type(
+                object_def->get_offset_attr(attr_offset));
+        }
     } else {
         // method
         // dispatch table ptr
