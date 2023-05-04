@@ -31,9 +31,33 @@ namespace lightir {
 int LightWalker::get_next_type_id() { return next_type_id++; }
 int LightWalker::get_const_type_id() { return next_const_id++; }
 
-string LightWalker::get_fully_qualified_name(semantic::FunctionDefType *func) {
+string LightWalker::get_fully_qualified_name(
+    semantic::FunctionDefType *func_def_type, bool with_dollar) {
     // TODO: FQN
     // check ChocoPy v2.2: RISC-V Implementation Guide 2.Naming conventions
+    auto parent_sym = func_def_type->current_scope.parent;
+    auto parent_parent_sym = parent_sym->parent;
+    // 1. global->function
+    if (!parent_parent_sym) {
+        return (with_dollar ? "$" : "") + func_def_type->get_name();
+    }
+    // 2. global->class->method
+    for (auto &e : parent_parent_sym->tab) {
+        auto parent_class =
+            dynamic_cast<semantic::ClassDefType *>(e.second.get());
+        if (parent_class && &(parent_class->current_scope) == parent_sym) {
+            return (with_dollar ? "$" : "") + parent_class->class_name + "." +
+                   func_def_type->get_name();
+        }
+        auto parent_func =
+            dynamic_cast<semantic::FunctionDefType *>(e.second.get());
+        if (parent_func && &(parent_func->current_scope) == parent_sym) {
+            return (with_dollar ? "$" : "") +
+                   get_fully_qualified_name(parent_func, false) + "." +
+                   func_def_type->get_name();
+        }
+    }
+    // 3. global->function->...->function
     return "";
 }
 
@@ -299,24 +323,6 @@ void LightWalker::visit(parser::PassStmt &) {}
 void LightWalker::visit(parser::GlobalDecl &) {}
 void LightWalker::visit(parser::NonlocalDecl &) {}
 
-string get_unique_func_name(semantic::FunctionDefType *func_def_type) {
-    auto parent_sym = func_def_type->current_scope.parent;
-    auto parent_parent_sym = parent_sym->parent;
-    // 1. global->function
-    if (!parent_parent_sym) {
-        return "$" + func_def_type->get_name();
-    }
-    // 2. global->class->method
-    for (auto &e : parent_parent_sym->tab) {
-        auto parent_class =
-            dynamic_cast<semantic::ClassDefType *>(e.second.get());
-        if (parent_class && &(parent_class->current_scope) == parent_sym) {
-            return "$" + parent_class->class_name + "." +
-                   func_def_type->get_name();
-        }
-    }
-}
-
 /*
  * Analyze PROGRAM, creating Info objects for all symbols.
  * Populate the global symbol table.
@@ -346,7 +352,8 @@ void LightWalker::visit(parser::Program &node) {
                 semantic_type_to_llvm_type(func_semantic_type));
 
             // global_func_name
-            auto global_func_name = get_unique_func_name(func_semantic_type);
+            auto global_func_name =
+                get_fully_qualified_name(func_semantic_type, true);
 
             // func
             auto func = Function::create(global_func_llvm_type,
@@ -643,8 +650,15 @@ void LightWalker::visit(parser::ForStmt &node) {
         ptr_array->set_type(ptr_i8_type);
     else {
         auto class_name = node.identifier->inferredType->get_name();
-        auto object = dynamic_cast<Class *>(scope.find_in_global(class_name));
-        ptr_array->set_type(PtrType::get(PtrType::get(object)));
+        if (class_name[0] == '[') {
+            // list
+            ptr_array->set_type(PtrType::get(ptr_list_type));
+        } else {
+            // class
+            auto object =
+                dynamic_cast<Class *>(scope.find_in_global(class_name));
+            ptr_array->set_type(PtrType::get(PtrType::get(object)));
+        }
     }
     auto array_len = builder->create_call(len_fun, {iterable});
 
@@ -702,8 +716,7 @@ void LightWalker::visit(parser::FuncDef &node) {
 
     // TODO method
     // global_func_name
-    auto global_func_name = get_unique_func_name(func_semantic_type);
-
+    auto global_func_name = get_fully_qualified_name(func_semantic_type, true);
     // func
     // auto func = dynamic_cast<Function
     // *>(scope.find_in_global(node.name->name));
@@ -804,7 +817,6 @@ void LightWalker::visit(parser::ListExpr &node) {
     if (list_type) {
         // list (non-empty)
         auto element_type = list_type->element_type;
-        auto element_llvm_type = semantic_type_to_llvm_type(element_type.get());
         vector<Value *> arg_list = {CONST(int(node.elements.size()))};
         for (auto &e : node.elements) {
             e->accept(*this);
@@ -1010,20 +1022,27 @@ void LightWalker::visit(parser::VarDef &node) {
                                          module.get(), ptr_str_type, false,
                                          ConstantNull::get(ptr_str_type));
             builder->create_store(str_addr, var);
-        } else if (auto var_type = dynamic_cast<Class *>(
-                       scope.find_in_global(node.var->type->get_name()));
-                   var_type) {
-            // Class
-            auto ptr_var_type = PtrType::get(var_type);
+        } else {
+            node.var->type->accept(*this);
+            auto ptr_var_type = visitor_return_type;
             var = GlobalVariable::create(node.var->identifier->name,
                                          module.get(), ptr_var_type, false,
                                          ConstantNull::get(ptr_var_type));
-        } else {
-            // List
-            var = GlobalVariable::create(node.var->identifier->name,
-                                         module.get(), ptr_list_type, false,
-                                         ConstantNull::get(ptr_list_type));
         }
+        // else if (auto var_type = dynamic_cast<Class *>(
+        //                scope.find_in_global(node.var->type->get_name()));
+        //            var_type) {
+        //     // Class
+        //     auto ptr_var_type = PtrType::get(var_type);
+        //     var = GlobalVariable::create(node.var->identifier->name,
+        //                                  module.get(), ptr_var_type, false,
+        //                                  ConstantNull::get(ptr_var_type));
+        // } else {
+        //     // List
+        //     var = GlobalVariable::create(node.var->identifier->name,
+        //                                  module.get(), ptr_list_type, false,
+        //                                  ConstantNull::get(ptr_list_type));
+        // }
 
         scope.push_in_global(node.var->identifier->name, var);
     } else {
@@ -1044,9 +1063,8 @@ void LightWalker::visit(parser::VarDef &node) {
             var = builder->create_alloca(ptr_str_type);
             builder->create_store(str_addr, var);
         } else {
-            auto var_type = dynamic_cast<Class *>(
-                scope.find_in_global(node.var->type->get_name()));
-            auto ptr_var_type = PtrType::get(var_type);
+            node.var->type->accept(*this);
+            auto ptr_var_type = visitor_return_type;
             var = builder->create_alloca(ptr_var_type);
             builder->create_store(ConstantNull::get(ptr_var_type), var);
         }
@@ -1101,8 +1119,13 @@ void LightWalker::visit(parser::IndexExpr &node) {
         ptr_array->set_type(ptr_i8_type);
     else {
         auto class_name = node.inferredType->get_name();
-        auto object = dynamic_cast<Class *>(scope.find_in_global(class_name));
-        ptr_array->set_type(PtrType::get(PtrType::get(object)));
+        if (class_name[0] == '[') {
+            ptr_array->set_type(PtrType::get(ptr_list_type));
+        } else {
+            auto object =
+                dynamic_cast<Class *>(scope.find_in_global(class_name));
+            ptr_array->set_type(PtrType::get(PtrType::get(object)));
+        }
     }
     auto element_addr = builder->create_gep(ptr_array, index);
     if (get_lvalue)
