@@ -1,6 +1,7 @@
 #include "chocopy_lightir.hpp"
 
 #include <cassert>
+#include <cstdlib>
 #include <exception>
 #include <fstream>
 #include <ranges>
@@ -24,6 +25,9 @@
 #include "ValueType.hpp"
 #include "chocopy_parse.hpp"
 #include "chocopy_semant.hpp"
+
+// is error handlers enabled (error.Div & error.OOB & error.None)
+#define ERROR_HANDLING 1
 
 namespace lightir {
 #define CONST(num) ConstantInt::get(num, &*module)
@@ -104,6 +108,39 @@ Type *LightWalker::semantic_type_to_llvm_type(semantic::SymbolType *type) {
         return func_type;
     }
     assert(0);
+}
+
+void LightWalker::error_if_relation(string relation, Value *value1,
+                                    Value *value2, Function *error_handler) {
+    auto prev_basic_block = builder->get_insert_block();
+    auto cond =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto then =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    auto end =
+        BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+    // jump to cond
+    builder->create_br(cond);
+    builder->set_insert_point(cond);
+    Value *cond_result = nullptr;
+    if (relation == "==") {
+        cond_result = builder->create_icmp_eq(value1, value2);
+    } else if (relation == ">=") {
+        cond_result = builder->create_icmp_ge(value1, value2);
+    } else if (relation == "<") {
+        cond_result = builder->create_icmp_lt(value1, value2);
+    }
+    if (!cond_result) {
+        cerr << "Invalid relation" << endl;
+        exit(233);
+    }
+    builder->create_cond_br(cond_result, then, end);
+    // then (div zero error)
+    builder->set_insert_point(then);
+    builder->create_call(error_handler, {});
+    builder->create_br(end);
+    // end (proceed)
+    builder->set_insert_point(end);
 }
 
 /*
@@ -432,6 +469,7 @@ void LightWalker::visit(parser::AssignStmt &node) {
         // TODO Class
     }
 }
+
 void LightWalker::visit(parser::BinaryExpr &node) {
     // TODO: Implement this, this is not complete
     Instruction *result;
@@ -475,8 +513,14 @@ void LightWalker::visit(parser::BinaryExpr &node) {
     } else if (node.operator_ == "-") {
         result = builder->create_isub(v1, v2);
     } else if (node.operator_ == "//") {
+#ifdef ERROR_HANDLING
+        error_if_relation("==", v2, CONST(0), error_div_fun);
+#endif
         result = builder->create_isdiv(v1, v2);
     } else if (node.operator_ == "%") {
+#ifdef ERROR_HANDLING
+        error_if_relation("==", v2, CONST(0), error_div_fun);
+#endif
         result = builder->create_irem(v1, v2);
     } else if (node.operator_ == "and" || node.operator_ == "or") {
         // ! TODO: short circuit
@@ -656,6 +700,12 @@ void LightWalker::visit(parser::ForStmt &node) {
     // TODO: Implement this
     node.iterable->accept(*this);
     auto iterable = visitor_return_value;
+
+#ifdef ERROR_HANDLING
+    error_if_relation("==", iterable, ConstantNull::get(ptr_obj_type),
+                      error_none_fun);
+#endif
+
     auto ptr_array_addr = builder->create_gep(iterable, CONST(4));
     ptr_array_addr->set_type(ptr_ptr_obj_type);
     auto ptr_array = builder->create_load(ptr_array_addr);
@@ -676,6 +726,7 @@ void LightWalker::visit(parser::ForStmt &node) {
             ptr_array->set_type(PtrType::get(PtrType::get(object)));
         }
     }
+
     auto array_len = builder->create_call(len_fun, {iterable});
 
     auto i_counter = builder->create_alloca(i32_type);
@@ -1191,6 +1242,12 @@ void LightWalker::visit(parser::IndexExpr &node) {
     // evaluate list
     node.list->accept(*this);
     auto list = visitor_return_value;
+
+#ifdef ERROR_HANDLING
+    error_if_relation("==", list, ConstantNull::get(ptr_obj_type),
+                      error_none_fun);
+#endif
+
     // evaluate index
     node.index->accept(*this);
     auto index = visitor_return_value;
@@ -1214,6 +1271,14 @@ void LightWalker::visit(parser::IndexExpr &node) {
             ptr_array->set_type(PtrType::get(PtrType::get(object)));
         }
     }
+
+    auto array_len = builder->create_call(len_fun, {list});
+
+#ifdef ERROR_HANDLING
+    error_if_relation(">=", index, array_len, error_oob_fun);
+    error_if_relation("<", index, CONST(0), error_oob_fun);
+#endif
+
     auto element_addr = builder->create_gep(ptr_array, index);
     if (get_lvalue)
         visitor_return_value = element_addr;

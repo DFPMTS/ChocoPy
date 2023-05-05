@@ -185,6 +185,9 @@ class LightWalker : public ast::Visitor {
     void visit(parser::Node &) override final;
     void visit(parser::IndexExpr &) override final;
 
+    void error_if_relation(string relation, Value *value1, Value *value2,
+                           Function *error_handler);
+
     semantic::SymbolTable *sym;
     ScopeAnalyzer scope;
     unique_ptr<Module> module;
