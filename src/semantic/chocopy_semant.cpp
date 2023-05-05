@@ -246,6 +246,7 @@ void TypeChecker::visit(parser::NonlocalDecl &node) {
     if (sym->is_nonlocal(name)) {
         auto nonlocal_type = sym->get_shared<ValueType>(name);
         sym->put(name, nonlocal_type);
+        current_lambda_params->push_back(name);
     } else {
         typeError(&node, fmt::format("No such nonlocal variable: {}", name));
     }
@@ -478,9 +479,31 @@ void TypeChecker::visit(parser::FuncDef &node) {
     for (const auto &param : node.params) {
         param->accept(*this);
     }
+
+    // set up lambda_params
+    auto saved_lambda_params = current_lambda_params;
+    // also treat function defs as variables
+    vector<string> local_variables;
+    vector<string> lambda_variables;
+    current_lambda_params = &lambda_variables;
+
     for (const auto &decl : node.declarations) {
         decl->accept(*this);
+        if (dynamic_cast<parser::VarDef *>(decl.get())) {
+            local_variables.push_back(decl->get_id()->name);
+        }
+        if (dynamic_cast<parser::NonlocalDecl *>(decl.get())) {
+            current_lambda_params->push_back(decl->get_id()->name);
+        }
+        if (auto func_def = dynamic_cast<parser::FuncDef *>(decl.get());
+            func_def) {
+            local_variables.push_back(decl->get_id()->name);
+            current_lambda_params->insert(current_lambda_params->end(),
+                                          func_def->lambda_params.begin(),
+                                          func_def->lambda_params.end());
+        }
     }
+
     bool have_return = false;
     for (const auto &stmt : node.statements) {
         stmt->accept(*this);
@@ -488,6 +511,27 @@ void TypeChecker::visit(parser::FuncDef &node) {
             have_return = true;
         }
     }
+    // std::cout << node.name->name << " local ";
+    // for (auto x : local_variables) std::cout << x << " ";
+    // std::cout << std::endl;
+
+    // std::unique & std::set_different requires sets to be sorted
+    std::sort(current_lambda_params->begin(), current_lambda_params->end());
+    std::sort(local_variables.begin(), local_variables.end());
+    current_lambda_params->resize(
+        std::distance(current_lambda_params->begin(),
+                      std::unique(current_lambda_params->begin(),
+                                  current_lambda_params->end())));
+    // std::cout << "lambda ";
+    // for (auto x : *current_lambda_params) std::cout << x << " ";
+    // std::cout << std::endl;
+    std::set_difference(current_lambda_params->begin(),
+                        current_lambda_params->end(), local_variables.begin(),
+                        local_variables.end(),
+                        std::back_inserter(node.lambda_params));
+    // std::cout << "lambda ";
+    // for (auto x : node.lambda_params) std::cout << x << " ";
+    // std::cout << std::endl;
     if (!TypeAssign(none_value_type.get(), func_def_type->return_type.get()) &&
         !have_return) {
         typeError(&node, "Missing return");
@@ -495,6 +539,7 @@ void TypeChecker::visit(parser::FuncDef &node) {
     // * restore return type and symbol table
     return_type = saved_return_type;
     sym = saved_sym;
+    current_lambda_params = saved_lambda_params;
 }
 void TypeChecker::visit(parser::Ident &node) {
     // TODO: Implement this, this is not complete
@@ -506,6 +551,11 @@ void TypeChecker::visit(parser::Ident &node) {
     } else {
         type = sym->get_shared<SymbolType>(node.name);
     }
+    // add by-value capture
+    if (!sym->declares(node.name) &&
+        (global->declares(node.name) != sym->get<ValueType>(node.name)))
+        if (current_lambda_params) current_lambda_params->push_back(node.name);
+
     if (type == nullptr || dynamic_pointer_cast<FunctionDefType>(type) ||
         dynamic_pointer_cast<ClassDefType>(type)) {
         typeError(&node, fmt::format("Not a variable: {}", node.name));

@@ -156,6 +156,9 @@ class TypeChecker : public ast::ASTAnalyzer {
     // * containing class C
     shared_ptr<SymbolType> containing_class = nullptr;
 
+    // current FuncDef's lambda_params
+    vector<string> *current_lambda_params;
+
     // * Will the ID be used in AssignStmt
     // ! This flag will only take effect once ,so the ID to be assigned must be
     // ! visited first
