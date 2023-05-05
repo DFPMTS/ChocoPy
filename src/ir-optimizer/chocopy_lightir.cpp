@@ -475,6 +475,37 @@ void LightWalker::visit(parser::BinaryExpr &node) {
     Instruction *result;
     node.left->accept(*this);
     auto v1 = this->visitor_return_value;
+
+    // handle short circuit
+    if (node.operator_ == "and" || node.operator_ == "or") {
+        auto prev_basic_block = builder->get_insert_block();
+        auto right_side = BasicBlock::create(module.get(), "",
+                                             prev_basic_block->get_parent());
+        auto end = BasicBlock::create(module.get(), "",
+                                      prev_basic_block->get_parent());
+        // naive way to store result
+        auto result = builder->create_alloca(i1_type);
+        builder->create_store(v1, result);
+
+        // and / or
+        if (node.operator_ == "and")
+            builder->create_cond_br(v1, right_side, end);
+        else
+            builder->create_cond_br(v1, end, right_side);
+        builder->set_insert_point(right_side);
+
+        // evaluate right side
+        node.right->accept(*this);
+        builder->create_store(visitor_return_value, result);
+        builder->create_br(end);
+        builder->set_insert_point(end);
+
+        // end
+        visitor_return_value = builder->create_load(result);
+        return;
+    }
+
+    // rest of operators
     node.right->accept(*this);
     auto v2 = this->visitor_return_value;
     if (node.operator_ == "+") {
@@ -522,8 +553,6 @@ void LightWalker::visit(parser::BinaryExpr &node) {
         error_if_relation("==", v2, CONST(0), error_div_fun);
 #endif
         result = builder->create_irem(v1, v2);
-    } else if (node.operator_ == "and" || node.operator_ == "or") {
-        // ! TODO: short circuit
     } else if (node.operator_ == ">") {
         result = builder->create_icmp_gt(v1, v2);
     } else if (node.operator_ == ">=") {
@@ -1145,8 +1174,10 @@ void LightWalker::visit(parser::UnaryExpr &node) {
     auto var = this->visitor_return_value;
     if (node.operator_ == "-") {
         result = builder->create_ineg(var);
+        result->set_type(i32_type);
     } else if (node.operator_ == "not") {
         result = builder->create_not(var);
+        result->set_type(i1_type);
     } else {
         assert(false);
     }
@@ -1154,7 +1185,6 @@ void LightWalker::visit(parser::UnaryExpr &node) {
 }
 void LightWalker::visit(parser::VarDef &node) {
     // TODO: Implement this, this is not complete
-    // ! str, Class & local variables
     if (scope.in_global()) {
         GlobalVariable *var = nullptr;
         if (node.var->type->get_name() == "int") {
