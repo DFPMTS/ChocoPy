@@ -409,6 +409,12 @@ void TypeChecker::visit(parser::CallExpr &node) {
         } else {
             node.function->inferredType = func_def;
             node.inferredType = func_def->return_type;
+
+            // capture nested functions called
+            if (!sym->declares(call_name) && (global->declares(call_name) !=
+                                              sym->get<SymbolType>(call_name)))
+                if (current_lambda_params)
+                    current_lambda_params->push_back(call_name);
         }
     } else if (dynamic_pointer_cast<ClassDefType>(call_def)) {
         node.inferredType =

@@ -61,7 +61,7 @@ string LightWalker::get_fully_qualified_name(
                    func_def_type->get_name();
         }
     }
-    // 3. global->function->...->function
+    // should not happen
     return "";
 }
 
@@ -135,7 +135,7 @@ void LightWalker::error_if_relation(string relation, Value *value1,
         exit(233);
     }
     builder->create_cond_br(cond_result, then, end);
-    // then (div zero error)
+    // then (error handler)
     builder->set_insert_point(then);
     builder->create_call(error_handler, {});
     builder->create_br(end);
@@ -635,6 +635,7 @@ void LightWalker::visit(parser::ClassDef &node) {
 
     auto prev_sym = sym;
     sym = &class_def->current_scope;
+
     // search for super class
     Class *super_class = nullptr;
     for (auto &class_defined : module->get_class()) {
@@ -666,18 +667,22 @@ void LightWalker::visit(parser::ClassDef &node) {
             auto var_type = visitor_return_type;
             AttrInfo *attr = nullptr;
             if (var_type->is_integer_type()) {
+                // i32
                 attr = new AttrInfo(var_type, attr_name,
                                     var_def->value->int_value);
             } else if (var_type->is_bool_type()) {
+                // i1
                 attr = new AttrInfo(
                     var_type, attr_name,
                     dynamic_cast<parser::BoolLiteral *>(var_def->value.get())
                         ->bin_value);
             } else if (var_type == ptr_str_type) {
+                // str
                 dynamic_cast<parser::StringLiteral *>(var_def->value.get())
                     ->accept(*this);
                 attr = new AttrInfo(var_type, attr_name, visitor_return_value);
             } else {
+                // Class
                 attr = new AttrInfo(var_type, attr_name);
             }
             current_class->add_attribute(attr);
@@ -692,13 +697,12 @@ void LightWalker::visit(parser::ClassDef &node) {
                 sym->declares<semantic::FunctionDefType>(func_name);
             auto func_llvm_type = dynamic_cast<FunctionType *>(
                 semantic_type_to_llvm_type(func_def_type));
+            auto FQN_func_name = get_fully_qualified_name(func_def_type, true);
 
-            auto func = Function::create(
-                func_llvm_type, "$" + node.get_id()->name + "." + func_name,
-                module.get());
-            // scope.push_in_global(func_name, func);
-            scope.push_in_global("$" + node.get_id()->name + "." + func_name,
-                                 func);
+            // install function
+            auto func =
+                Function::create(func_llvm_type, FQN_func_name, module.get());
+            scope.push_in_global(FQN_func_name, func);
             current_class->add_method(func);
         }
     }
@@ -706,7 +710,6 @@ void LightWalker::visit(parser::ClassDef &node) {
         if (auto func_def = dynamic_cast<parser::FuncDef *>(decl.get());
             func_def) {
             func_def->accept(*this);
-            // TODO : method in FuncDef
         }
     }
     sym = prev_sym;
@@ -758,6 +761,7 @@ void LightWalker::visit(parser::ForStmt &node) {
 
     auto array_len = builder->create_call(len_fun, {iterable});
 
+    // i = 0
     auto i_counter = builder->create_alloca(i32_type);
     builder->create_store(CONST(0), i_counter);
 
@@ -768,6 +772,7 @@ void LightWalker::visit(parser::ForStmt &node) {
         BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
     auto end =
         BasicBlock::create(module.get(), "", prev_basic_block->get_parent());
+
     // jump to cond
     builder->create_br(cond);
     // cond
@@ -775,6 +780,7 @@ void LightWalker::visit(parser::ForStmt &node) {
     auto i_val = builder->create_load(i_counter);
     auto cond_result = builder->create_icmp_lt(i_val, array_len);
     builder->create_cond_br(cond_result, body, end);
+
     // body
     builder->set_insert_point(body);
     i_val = builder->create_load(i_counter);
@@ -782,6 +788,7 @@ void LightWalker::visit(parser::ForStmt &node) {
     Value *iter = nullptr;
 
     if (node.identifier->inferredType->get_name() == "str") {
+        // convert char to str object
         auto char_val = builder->create_load(iter_addr);
         iter = builder->create_call(makestr_fun, {char_val});
     } else {
@@ -790,9 +797,12 @@ void LightWalker::visit(parser::ForStmt &node) {
 
     auto var = scope.find(node.identifier->name);
     builder->create_store(iter, var);
+
     for (auto &stmt : node.body) {
         stmt->accept(*this);
     }
+
+    // i++
     auto i_plus_1 = builder->create_iadd(i_val, CONST(1));
     builder->create_store(i_plus_1, i_counter);
     builder->create_br(cond);
@@ -811,6 +821,7 @@ void LightWalker::visit(parser::FuncDef &node) {
 
     // func
     auto func = dynamic_cast<Function *>(scope.find(FQN_func_name));
+
     // is nested function ?
     bool have_anon = !scope.in_global();
 
@@ -818,10 +829,11 @@ void LightWalker::visit(parser::FuncDef &node) {
     auto prev_basic_block = builder->get_insert_block();
     auto new_basic_block = BasicBlock::create(module.get(), "", func);
     builder->set_insert_point(new_basic_block);
-    scope.enter();
 
+    scope.enter();
     auto prev_sym = sym;
     sym = &func_semantic_type->current_scope;
+
     Class *anon_type = nullptr;
     if (have_anon) {
         // treat all nested function as lambda functions
@@ -832,9 +844,31 @@ void LightWalker::visit(parser::FuncDef &node) {
 
         // install captured variables to anon class
         // the name of anon class is FQN of function + "$anon"
+        // ! in the previous implementation, nested functions are only visible
+        // ! in its parent's scope, that it to say, we are currently unable
+        // ! to handle situations like
+        /*
+            def f():
+                def g():
+                    def h():
+                        g()
+                    pass
+                pass
+        */
+        // ! since we did not treat `$f.g$anon` as a captured variable of h()
         auto anon_class = scope.find(FQN_func_name + "$anon");
         for (int i = 0; i < node.lambda_params.size(); ++i) {
             auto lambda_name = node.lambda_params[i];
+            auto func_def_type =
+                sym->get<semantic::FunctionDefType>(lambda_name);
+
+            // Install needed functions' anon classes to current function's anon
+            // class. Reasons have been explained above
+            if (func_def_type) {
+                auto FQN_func_name =
+                    get_fully_qualified_name(func_def_type, true);
+                lambda_name = FQN_func_name + "$anon";
+            }
             auto attr_var = scope.find(lambda_name);
             auto attr_type = attr_var->get_type();
             auto attr = new AttrInfo(attr_type, lambda_name,
@@ -853,9 +887,9 @@ void LightWalker::visit(parser::FuncDef &node) {
 
         // load captured variables from anon class
         for (int i = 0; i < node.lambda_params.size(); ++i) {
-            string var_name = node.lambda_params.at(i);
             auto attr_addr = builder->create_gep(anon_class_arg, CONST(i));
             auto attr_var = builder->create_load(attr_addr);
+            auto var_name = anon_type->attributes_->at(i)->get_name();
             scope.push(var_name, attr_var);
         }
     }
