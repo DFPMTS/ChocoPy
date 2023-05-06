@@ -834,6 +834,23 @@ void LightWalker::visit(parser::FuncDef &node) {
     auto prev_sym = sym;
     sym = &func_semantic_type->current_scope;
 
+    // load arguments to local variables
+    // this has to be done first since nested functions may capture these
+    // variables
+    for (int i = 0; i < node.params.size(); ++i) {
+        auto &param = node.params[i];
+        auto param_semantic_type = sym->declares(param->identifier->name);
+        auto param_llvm_type = semantic_type_to_llvm_type(param_semantic_type);
+        auto param_ptr = builder->create_alloca(param_llvm_type);
+        scope.push(param->identifier->name, param_ptr);
+
+        // i + have_anon : get correct argument number for
+        // nested functions
+        builder->create_store(
+            new Value(param_llvm_type, "arg" + to_string(i + have_anon)),
+            param_ptr);
+    }
+
     Class *anon_type = nullptr;
     if (have_anon) {
         // treat all nested function as lambda functions
@@ -892,20 +909,6 @@ void LightWalker::visit(parser::FuncDef &node) {
             auto var_name = anon_type->attributes_->at(i)->get_name();
             scope.push(var_name, attr_var);
         }
-    }
-
-    // load arguments to local variables
-    for (int i = 0; i < node.params.size(); ++i) {
-        auto &param = node.params[i];
-        auto param_semantic_type = sym->declares(param->identifier->name);
-        auto param_llvm_type = semantic_type_to_llvm_type(param_semantic_type);
-        auto param_ptr = builder->create_alloca(param_llvm_type);
-        scope.push(param->identifier->name, param_ptr);
-
-        // i + have_anon : get correct argument number for nested functions
-        builder->create_store(
-            new Value(param_llvm_type, "arg" + to_string(i + have_anon)),
-            param_ptr);
     }
 
     // create nested functions & their anon class

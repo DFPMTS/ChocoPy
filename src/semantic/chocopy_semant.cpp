@@ -493,6 +493,11 @@ void TypeChecker::visit(parser::FuncDef &node) {
     vector<string> lambda_variables;
     current_lambda_params = &lambda_variables;
 
+    // parameters are also local variables
+    for (const auto &param : node.params) {
+        local_variables.push_back(param->identifier->name);
+    }
+
     for (const auto &decl : node.declarations) {
         decl->accept(*this);
         if (dynamic_cast<parser::VarDef *>(decl.get())) {
