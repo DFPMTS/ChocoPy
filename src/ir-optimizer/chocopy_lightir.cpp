@@ -962,11 +962,22 @@ void LightWalker::visit(parser::FuncDef &node) {
         stmt->accept(*this);
     }
 
-    // a workaround to return None implicitly:
-    // add a `ret ptr null` whenever we can
+    // 1. the function has to return None implicitly
+    //    ret ptr null
+    // 2. things like IfStmt may create a blank `end` basic block
+    //    different placeholders for different return types
     if (!node.returnType || (node.returnType->get_name() != "int" &&
                              node.returnType->get_name() != "bool"))
-        builder->create_ret(new ConstantNull(func->get_return_type()));
+        builder->create_ret(new ConstantNull(ptr_obj_type));
+    else {
+        // placeholder for ` -> int` and ` -> bool`
+        auto dummy_retval = CONST(0);
+        if (node.returnType->get_name() == "int")
+            dummy_retval->set_type(i32_type);
+        else if (node.returnType->get_name() == "bool")
+            dummy_retval->set_type(i1_type);
+        builder->create_ret(dummy_retval);
+    }
 
     // return to parent's scope
     builder->set_insert_point(prev_basic_block);

@@ -517,9 +517,6 @@ void TypeChecker::visit(parser::FuncDef &node) {
             have_return = true;
         }
     }
-    // std::cout << node.name->name << " local ";
-    // for (auto x : local_variables) std::cout << x << " ";
-    // std::cout << std::endl;
 
     // std::unique & std::set_different requires sets to be sorted
     std::sort(current_lambda_params->begin(), current_lambda_params->end());
@@ -528,16 +525,12 @@ void TypeChecker::visit(parser::FuncDef &node) {
         std::distance(current_lambda_params->begin(),
                       std::unique(current_lambda_params->begin(),
                                   current_lambda_params->end())));
-    // std::cout << "lambda ";
-    // for (auto x : *current_lambda_params) std::cout << x << " ";
-    // std::cout << std::endl;
+
     std::set_difference(current_lambda_params->begin(),
                         current_lambda_params->end(), local_variables.begin(),
                         local_variables.end(),
                         std::back_inserter(node.lambda_params));
-    // std::cout << "lambda ";
-    // for (auto x : node.lambda_params) std::cout << x << " ";
-    // std::cout << std::endl;
+
     if (!TypeAssign(none_value_type.get(), func_def_type->return_type.get()) &&
         !have_return) {
         typeError(&node, "Missing return");
