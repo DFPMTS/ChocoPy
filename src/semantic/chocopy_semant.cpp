@@ -775,7 +775,7 @@ void TypeChecker::visit(parser::AssignStmt &node) {
     node.value->accept(*this);
     if (node.value->inferredType == nullptr) return;
     for (const auto &target : node.targets) {
-        is_assign = true;
+        if (dynamic_cast<parser::Ident *>(target.get())) is_assign = true;
         target->accept(*this);
         is_assign = false;
         if (target->inferredType.get() == nullptr) continue;
