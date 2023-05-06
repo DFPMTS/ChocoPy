@@ -793,13 +793,19 @@ shared_ptr<SymbolType> TypeChecker::LCA(shared_ptr<SymbolType> type_1,
     auto name_2 = type_2->get_name();
     // * type_1=type_2
     if (name_1 == name_2) {
-        return make_shared<ClassValueType>(name_1);
+        return type_1;
     }
     // * Both type_1 and type_2 are not list types
     if (!type_1->is_list_type() && !type_2->is_list_type()) {
         return make_shared<ClassValueType>(
             hierachy_tree->common_ancestor(name_1, name_2));
     }
+
+    // <Empty> <= [T]
+    if (name_1 == "<Empty>" && type_2->is_list_type()) return type_2;
+    // [T] >= <Empty>
+    if (type_1->is_list_type() && name_2 == "<Empty>") return type_1;
+
     // * Only possibility
     return object_value_type;
 }
