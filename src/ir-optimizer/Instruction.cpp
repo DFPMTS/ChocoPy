@@ -554,7 +554,7 @@ TruncInst::TruncInst(OpID op, Value *val, Type *ty, BasicBlock *bb)
 }
 
 TruncInst *TruncInst::create_trunc(Value *val, Type *ty, BasicBlock *bb) {
-    return new TruncInst(Instruction::ZExt, val, ty, bb);
+    return new TruncInst(Instruction::Trunc, val, ty, bb);
 }
 
 Type *TruncInst::get_dest_type() const { return dest_ty_; }

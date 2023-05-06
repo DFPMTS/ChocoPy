@@ -27,7 +27,7 @@
 #include "chocopy_semant.hpp"
 
 // is error handlers enabled (error.Div & error.OOB & error.None)
-#define ERROR_HANDLING 1
+#define ERROR_HANDLING
 
 namespace lightir {
 #define CONST(num) ConstantInt::get(num, &*module)
@@ -400,14 +400,30 @@ void LightWalker::visit(parser::Program &node) {
             auto func = Function::create(global_func_llvm_type, FQN_func_name,
                                          module.get());
             scope.push_in_global(FQN_func_name, func);
-        } else {
-            decl->accept(*this);
+        } else if (auto class_def =
+                       dynamic_cast<parser::ClassDef *>(decl.get())) {
+            auto class_name = class_def->name->name;
+            auto class_def_type = sym->get<semantic::ClassDefType>(class_name);
+            auto super_class_name = class_def->superClass->name;
+            auto super_class_def =
+                sym->get<semantic::ClassDefType>(super_class_name);
+
+            // search for super class
+            Class *super_class = nullptr;
+            for (auto &class_defined : module->get_class()) {
+                if (class_defined->name_ == super_class_name) {
+                    super_class = class_defined;
+                }
+            }
+            // current class
+            auto current_class = new Class(module.get(), class_name,
+                                           get_next_type_id(), super_class);
+            // install current class
+            scope.push(class_name, current_class);
         }
     }
     for (const auto &decl : node.declarations) {
-        if (dynamic_cast<parser::FuncDef *>(decl.get())) {
-            decl->accept(*this);
-        }
+        decl->accept(*this);
     }
     for (const auto &stmt : node.statements) {
         stmt->accept(*this);
@@ -575,20 +591,24 @@ void LightWalker::visit(parser::CallExpr &node) {
         node.args.at(0)->accept(*this);
         auto v1 = this->visitor_return_value;
         if (node.args.at(0)->inferredType->get_name() == "int") {
+            v1->set_type(i32_type);
             auto t = builder->create_call(makeint_fun, {v1});
             builder->create_call(print_fun, {t});
         } else if (node.args.at(0)->inferredType->get_name() == "bool") {
+            v1->set_type(i1_type);
             auto t = builder->create_call(makebool_fun, {v1});
             builder->create_call(print_fun, {t});
         } else {
             builder->create_call(print_fun, {v1});
         }
+        visitor_return_value = ConstantNull::get(ptr_obj_type);
     } else if (func_name == "len") {
         node.args.at(0)->accept(*this);
         auto v1 = this->visitor_return_value;
         if (dynamic_cast<semantic::ListValueType *>(
                 node.args.at(0)->inferredType.get()) ||
-            node.args.at(0)->inferredType->get_name() == "str") {
+            node.args.at(0)->inferredType->get_name() == "str" ||
+            node.args.at(0)->inferredType->get_name() == "<Empty>") {
             visitor_return_value = builder->create_call(len_fun, {v1});
         } else {
             visitor_return_value = builder->create_call(
@@ -632,7 +652,8 @@ void LightWalker::visit(parser::ClassDef &node) {
     auto class_def = sym->get<semantic::ClassDefType>(node.name->name);
     auto super_class_def =
         sym->get<semantic::ClassDefType>(node.superClass->name);
-
+    auto current_class =
+        dynamic_cast<Class *>(scope.find_in_global(node.name->name));
     auto prev_sym = sym;
     sym = &class_def->current_scope;
 
@@ -643,11 +664,6 @@ void LightWalker::visit(parser::ClassDef &node) {
             super_class = class_defined;
         }
     }
-    // current class
-    auto current_class = new Class(module.get(), node.name->name,
-                                   get_next_type_id(), super_class);
-    // install current class
-    scope.push(node.get_id()->name, current_class);
 
     // add super class attributes
     for (auto &attr : *super_class->get_attribute()) {
@@ -741,13 +757,13 @@ void LightWalker::visit(parser::ForStmt &node) {
     auto ptr_array_addr = builder->create_gep(iterable, CONST(4));
     ptr_array_addr->set_type(ptr_ptr_obj_type);
     auto ptr_array = builder->create_load(ptr_array_addr);
-    if (node.identifier->inferredType->get_name() == "int" ||
-        node.identifier->inferredType->get_name() == "bool")
+    auto iter_name = node.identifier->inferredType->get_name();
+    if (iter_name == "int" || iter_name == "bool")
         ptr_array->set_type(PtrType::get(i32_type));
-    else if (node.identifier->inferredType->get_name() == "str")
+    else if (iter_name == "str")
         ptr_array->set_type(ptr_i8_type);
     else {
-        auto class_name = node.identifier->inferredType->get_name();
+        auto class_name = iter_name;
         if (class_name[0] == '[') {
             // list
             ptr_array->set_type(PtrType::get(ptr_list_type));
@@ -1077,8 +1093,7 @@ void LightWalker::visit(parser::ListExpr &node) {
 }
 void LightWalker::visit(parser::ListType &node) {
     // TODO: Implement this
-    node.elementType->accept(*this);
-    visitor_return_type = PtrType::get(visitor_return_type);
+    visitor_return_type = ptr_list_type;
 }
 void LightWalker::visit(parser::MemberExpr &node) {
     // TODO: Implement this
@@ -1337,16 +1352,19 @@ void LightWalker::visit(parser::IndexExpr &node) {
     if (node.inferredType->get_name() == "int" ||
         node.inferredType->get_name() == "bool")
         ptr_array->set_type(PtrType::get(i32_type));
-    else if (node.inferredType->get_name() == "str")
+    else if (node.list->inferredType->get_name() == "str")
         ptr_array->set_type(ptr_i8_type);
     else {
         auto class_name = node.inferredType->get_name();
         if (class_name[0] == '[') {
             ptr_array->set_type(PtrType::get(ptr_list_type));
-        } else {
-            auto object =
-                dynamic_cast<Class *>(scope.find_in_global(class_name));
+        } else if (auto object =
+                       dynamic_cast<Class *>(scope.find_in_global(class_name));
+                   object) {
             ptr_array->set_type(PtrType::get(PtrType::get(object)));
+        } else {
+            // [None]
+            ptr_array->set_type(ptr_ptr_obj_type);
         }
     }
 
@@ -1361,12 +1379,15 @@ void LightWalker::visit(parser::IndexExpr &node) {
     if (get_lvalue)
         visitor_return_value = element_addr;
     else {
-        if (node.inferredType->get_name() == "str") {
+        if (node.list->inferredType->get_name() == "str") {
             auto char_val = builder->create_load(element_addr);
             visitor_return_value =
                 builder->create_call(makestr_fun, {char_val});
         } else {
             visitor_return_value = builder->create_load(element_addr);
+            if (node.inferredType->get_name() == "bool")
+                visitor_return_value =
+                    builder->create_trunc(visitor_return_value, i1_type);
         }
     }
 }
