@@ -18,6 +18,10 @@ class HierachyTree {
         add_class("str", "object");
         add_class("int", "object");
         add_class("bool", "object");
+        // !
+        add_class("<None>", "object");
+        add_class("<Empty>", "object");
+        // !
     }
     void add_class(const string& class_, const string& super_class) {
         assert(superclass_map.count(class_) == 0);

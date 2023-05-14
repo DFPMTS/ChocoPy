@@ -1,0 +1,197 @@
+[
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser-lib.dir/lex.yy.c.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser/lex.yy.c",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser/lex.yy.c"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser-lib.dir/chocopy.tab.c.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser/chocopy.tab.c",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser/chocopy.tab.c"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser-lib.dir/chocopy_parse.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_parse.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_parse.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser-lib.dir/chocopy_ast.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_ast.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_ast.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser-lib.dir/chocopy_logging.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_logging.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_logging.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA1=1 -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser.dir/lex.yy.c.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser/lex.yy.c",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser/lex.yy.c"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA1=1 -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser.dir/chocopy.tab.c.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser/chocopy.tab.c",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser/chocopy.tab.c"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA1=1 -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser.dir/chocopy_parse.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_parse.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_parse.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA1=1 -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser.dir/chocopy_ast.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_ast.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_ast.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA1=1 -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser.dir/chocopy_logging.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_logging.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/parser/chocopy_logging.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA1=1 -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/parser.dir/__/semantic/chocopy_type.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_type.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/semantic",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/semantic-lib.dir/chocopy_semant.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_semant.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_semant.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/semantic",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/semantic-lib.dir/chocopy_type.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_type.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/semantic",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA2=1 -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/semantic.dir/chocopy_semant.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_semant.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_semant.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/semantic",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA2=1 -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/semantic.dir/chocopy_type.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/semantic/chocopy_type.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/BasicBlock.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/BasicBlock.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/BasicBlock.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Constant.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Constant.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Constant.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Function.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Function.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Function.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/GlobalVariable.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/GlobalVariable.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/GlobalVariable.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Instruction.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Instruction.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Instruction.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Module.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Module.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Module.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Type.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Type.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Type.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/User.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/User.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/User.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Value.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Value.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Value.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/IRprinter.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/IRprinter.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/IRprinter.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/chocopy_lightir.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/chocopy_lightir.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/chocopy_lightir.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Class.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Class.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Class.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/BasicBlock.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/BasicBlock.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/BasicBlock.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Constant.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Constant.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Constant.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Function.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Function.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Function.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/GlobalVariable.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/GlobalVariable.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/GlobalVariable.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Instruction.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Instruction.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Instruction.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Module.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Module.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Module.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Type.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Type.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Type.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/User.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/User.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/User.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Value.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Value.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Value.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/IRprinter.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/IRprinter.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/IRprinter.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/chocopy_lightir.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/chocopy_lightir.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/chocopy_lightir.cpp"
+},
+{
+  "directory": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/build/src/ir-optimizer",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DPA3=1 -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/ir-optimizer -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/semantic -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/include/parser -I/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/libs/json -isystem /usr/local/include  -O3 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Class.cpp.o -c /Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Class.cpp",
+  "file": "/Users/dfpmts/Desktop/sp23-chocopy3-sp23-team-3/src/ir-optimizer/Class.cpp"
+}
+]

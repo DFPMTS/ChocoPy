@@ -7,6 +7,8 @@ find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 find_package(FMT REQUIRED)
 
+add_definitions(-DPA3=1)
+
 # set the directory output
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
