@@ -1,1 +1,1 @@
-docker run -it --rm --name chocopy3 --mount type=bind,source=/home/dfpmts/Documents/sp23-chocopy3-sp23-team-3,target=/home/cs131-pa3 docker.io/syrriinge/cs131-sp23
+docker run -it --rm --name chocopy4 --mount type=bind,source=/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3,target=/home/cs131-pa4 docker.io/syrriinge/cs131-sp23
