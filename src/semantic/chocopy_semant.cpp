@@ -123,7 +123,7 @@ void SymbolTableGenerator::visit(parser::ClassDef &class_def) {
                 const auto &super_params = super_method_def->params;
                 const auto &params = method_def->params;
                 if ((super_method_def->return_type == nullptr) ^
-                    (super_method_def->return_type == nullptr)) {
+                    (method_def->returnType == nullptr)) {
                     error = true;
                 }
                 if (super_method_def->return_type != nullptr &&
