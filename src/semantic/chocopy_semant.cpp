@@ -122,8 +122,10 @@ void SymbolTableGenerator::visit(parser::ClassDef &class_def) {
                 auto method_def = (parser::FuncDef *)decl.get();
                 const auto &super_params = super_method_def->params;
                 const auto &params = method_def->params;
-                if ((super_method_def->return_type == nullptr) ^
-                    (method_def->returnType == nullptr)) {
+                if ((super_method_def->return_type == nullptr ||
+                     super_method_def->return_type->get_name() == "<None>") ^
+                    (method_def->returnType == nullptr ||
+                     method_def->returnType->get_name() == "<None>")) {
                     error = true;
                 }
                 if (super_method_def->return_type != nullptr &&
