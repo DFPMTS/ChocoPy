@@ -185,6 +185,9 @@ class LightWalker : public ast::Visitor {
     void visit(parser::Node &) override final;
     void visit(parser::IndexExpr &) override final;
 
+    void error_if_relation(string relation, Value *value1, Value *value2,
+                           Function *error_handler);
+
     semantic::SymbolTable *sym;
     ScopeAnalyzer scope;
     unique_ptr<Module> module;
@@ -201,7 +204,7 @@ class LightWalker : public ast::Visitor {
     // assign a unique name to each function
     // the unique name is used in the LLVM IR
     // you can design your own naming scheme
-    string get_fully_qualified_name(semantic::FunctionDefType *);
+    string get_fully_qualified_name(semantic::FunctionDefType *, bool);
 
     Type *semantic_type_to_llvm_type(semantic::SymbolType *type);
 

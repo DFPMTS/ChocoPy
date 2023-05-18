@@ -554,7 +554,7 @@ TruncInst::TruncInst(OpID op, Value *val, Type *ty, BasicBlock *bb)
 }
 
 TruncInst *TruncInst::create_trunc(Value *val, Type *ty, BasicBlock *bb) {
-    return new TruncInst(Instruction::ZExt, val, ty, bb);
+    return new TruncInst(Instruction::Trunc, val, ty, bb);
 }
 
 Type *TruncInst::get_dest_type() const { return dest_ty_; }
@@ -623,8 +623,12 @@ string GetElementPtrInst::print() {
     string instr_ir;
     auto op0_type =
         this->get_operand(0)->get_type()->get_ptr_element_type()->print();
+    // cout << "gep op0 :" << op0_type << " "
+    //      << op0_type.starts_with("%$class.anon_") << endl;
+
     if (op0_type.ends_with("$prototype_type") ||
-        op0_type.ends_with("$dispatchTable_type"))
+        op0_type.ends_with("$dispatchTable_type") ||
+        op0_type.starts_with("%$class.anon_"))
         instr_ir += fmt::format(
             "%{} = {} {}, ptr {}, i32 0, {}", this->get_name(),
             this->get_module()->get_instr_op_name(this->get_instr_type()),

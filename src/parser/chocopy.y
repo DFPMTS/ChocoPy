@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 #include "chocopy_parse.hpp"
 #include "chocopy_ast.hpp"
@@ -36,6 +37,15 @@ T* combine(T* list, X *item) {
     list->emplace_back(item);
     return list;
 }
+using VecDecl = std::vector<std::unique_ptr<::parser::Decl>>;
+using VecStmt = std::vector<std::unique_ptr<::parser::Stmt>>;
+using VecTypedVar = std::vector<std::unique_ptr<::parser::TypedVar>>;
+using VecExpr = std::vector<std::unique_ptr<::parser::Expr>>;
+using PairVecDeclStmt = std::pair<std::vector<std::unique_ptr<::parser::Decl>> *,std::vector<std::unique_ptr<::parser::Stmt>> *>;
+using PtrVecDecl = std::vector<std::unique_ptr<::parser::Decl>>*;
+using PtrVecStmt = std::vector<std::unique_ptr<::parser::Stmt>>*;
+using PtrVecTypedVar = std::vector<std::unique_ptr<::parser::TypedVar>>*;
+using PtrVecExpr = std::vector<std::unique_ptr<::parser::Expr>>*;
 %}
 
 /* all possible types of semantic value */
@@ -80,6 +90,7 @@ T* combine(T* list, X *item) {
   std::vector<std::unique_ptr<::parser::Stmt>> *PtrListStmt;
   std::vector<std::unique_ptr<::parser::TypedVar>> *PtrListTypedVar;
   std::vector<std::unique_ptr<::parser::Expr>> *PtrExprList;
+  std::pair<std::vector<std::unique_ptr<::parser::Decl>> *,std::vector<std::unique_ptr<::parser::Stmt>> *>* PtrFuncBody;
 }
 
 
@@ -93,6 +104,7 @@ T* combine(T* list, X *item) {
 %token <raw_int> TOKEN_INTEGER
 %token <raw_str> TOKEN_IDENTIFIER
 %token <raw_str> TOKEN_STRING
+%token <raw_str> TOKEN_IDSTRING
 %token TOKEN_TRUE
 %token TOKEN_FALSE
 %token TOKEN_AND
@@ -137,18 +149,19 @@ T* combine(T* list, X *item) {
 %token TOKEN_INDENT
 %token TOKEN_DEDENT
 %token TOKEN_NEWLINE
+%token TOKEN_UNRECOGNIZED
 
 %type <PtrStmt> stmt simple_stmt
 %type <PtrIfStmt> elif_list
-%type <PtrListDecl> top_level_decl class_body func_decls
-%type <PtrListStmt> stmt_list block
-%type <PtrListTypedVar> typed_var_list
+%type <PtrListDecl> top_level_decl class_body 
+%type <PtrListStmt> stmt_list block opt_stmt_list
+%type <PtrListTypedVar> typed_var_list opt_typed_var_list
 %type <PtrClassDef> class_def
 %type <PtrGlobalDecl> global_decl
 %type <PtrTypedVar> typed_var
 %type <PtrTypeAnnotation> type func_return_type
-%type <PtrExpr> expr cexpr target
-%type <PtrExprList> expr_list
+%type <PtrExpr> expr cexpr target binary_expr
+%type <PtrExprList> expr_list opt_expr_list 
 %type <PtrIndexExpr> index_expr
 %type <PtrMemberExpr> member_expr
 %type <PtrLiteral> literal
@@ -157,6 +170,8 @@ T* combine(T* list, X *item) {
 %type <PtrFuncDef> func_def
 %type <PtrNonlocalDecl> nonlocal_decl
 %type <PtrAssignStmt> assign_stmt
+%type <PtrDecl> single_program_decl single_func_decl single_class_decl
+%type <PtrFuncBody> func_body
 
 /* the destructor is called when error happends */
 /* you don't need to modify the code */
@@ -167,6 +182,7 @@ T* combine(T* list, X *item) {
 
 /* you may define associativity and precedence here */
 /* check https://www.gnu.org/software/bison/manual/html_node/Precedence-Decl.html */
+%right TOKEN_IF TOKEN_ELSE
 %left TOKEN_OR
 %left TOKEN_AND
 %left TOKEN_NOT
@@ -187,29 +203,220 @@ T* combine(T* list, X *item) {
  * 你可以添加 __PARSER_PRINT_LOCATION 的宏定义以恢复 Location 的输出。
  * 你只需用 Location() 新建一个空 Location 传入构造函数。 
  */
-program : top_level_decl stmt_list {
-        ROOT = std::move(std::make_unique<::parser::Program>(Location(), $1, $2));
-    }
-
+program : top_level_decl opt_stmt_list {
+                ROOT = std::move(std::make_unique<::parser::Program>(Location(), $1, $2));
+            }
+        | stmt_list {
+                ROOT = std::move(std::make_unique<::parser::Program>(Location(), new VecDecl(),$1));
+            }
+        ;
 /* Entry point to declerations */
-top_level_decl : { $$ = new std::vector<std::unique_ptr<::parser::Decl>>(); }
+top_level_decl  : single_program_decl { 
+                        $$ = new std::vector<std::unique_ptr<::parser::Decl>>(); 
+                        $$->emplace_back($1);
+                    }
+                | top_level_decl single_program_decl { $$=combine($1,$2); }
+                ;
 
-stmt_list : stmt {
-        $$ = new std::vector<std::unique_ptr<::parser::Stmt>>();
-        $$->emplace_back($1);
-    }
+single_program_decl : var_def
+                    | func_def
+                    | class_def
+                    ;
 
-stmt : simple_stmt TOKEN_NEWLINE { $$ = $1; }
+class_def   : TOKEN_CLASS identifier[name] TOKEN_l_paren identifier[parent] TOKEN_r_paren TOKEN_colon TOKEN_NEWLINE TOKEN_INDENT class_body[body] TOKEN_DEDENT {
+                    $$=new ::parser::ClassDef(Location(),$name,$parent,$body);
+                }    
+            ;
 
-simple_stmt : expr { $$ = new parser::ExprStmt(Location(), $1); } 
+class_body  : single_class_decl             { 
+                    $$=new VecDecl(); 
+                    $$->emplace_back($1);
+                }       
+            | class_body single_class_decl  { 
+                    $$=$1;
+                    $$->emplace_back($2); 
+                }
+            ;
 
-expr: cexpr { $$ = $1; }
+single_class_decl   : var_def
+                    | func_def
+                    ;
 
-literal : TOKEN_INTEGER { $$ = new parser::IntegerLiteral(Location(), $1); }
+func_def    : TOKEN_DEF identifier[name] TOKEN_l_paren  opt_typed_var_list[args] TOKEN_r_paren func_return_type[returntype] TOKEN_colon TOKEN_NEWLINE TOKEN_INDENT func_body[body] TOKEN_DEDENT {
+                    std::reverse($body->first->begin(),$body->first->end());
+                    $$=new ::parser::FuncDef(Location(),$name,$args,$returntype,$body->first,$body->second);
+                    delete($body);
+                }
+            ;
 
-cexpr :
-    | literal { $$ = $1; }
-    | cexpr TOKEN_plus cexpr { $$ = new parser::BinaryExpr(Location(), $1, string("+"), $3); }
+func_return_type    :  { $$=nullptr; }
+                    | TOKEN_rarrow type { $$=$2; }
+
+func_body   : single_func_decl func_body { 
+                    $$=$2;
+                    $$->first->emplace_back($1);
+                }
+            | stmt_list {
+                    $$=new PairVecDeclStmt(new VecDecl(),$1);
+                }
+            ;
+
+single_func_decl    : global_decl
+                    | nonlocal_decl
+                    | func_def
+                    | var_def
+                    ;
+
+var_def : typed_var TOKEN_equal literal TOKEN_NEWLINE { $$=new ::parser::VarDef(Location(),$1,$3); }
+        ;
+
+typed_var   : identifier TOKEN_colon type { $$=new ::parser::TypedVar(Location(),$1,$3); }
+            ;
+
+opt_typed_var_list  : { $$=new VecTypedVar();}
+                    | typed_var_list
+                    ;
+
+typed_var_list  : typed_var { 
+                        $$=new VecTypedVar;
+                        $$->emplace_back($1);
+                    }
+                | typed_var_list TOKEN_comma typed_var { $$=combine($1,$3); }
+                ;
+
+
+type    : TOKEN_IDENTIFIER                      { $$=new ::parser::ClassType(Location(),std::string($1)); }
+        | TOKEN_IDSTRING                        { $$=new ::parser::ClassType(Location(),std::string($1)); }
+        | TOKEN_l_square type TOKEN_r_square    { $$=new ::parser::ListType(Location(),$2); }
+        ;
+
+global_decl : TOKEN_GLOBAL identifier TOKEN_NEWLINE         { $$=new ::parser::GlobalDecl(Location(),$2); }
+            ;
+
+nonlocal_decl   : TOKEN_NONLOCAL identifier TOKEN_NEWLINE   { $$=new ::parser::NonlocalDecl(Location(),$2); }
+                ;
+
+opt_stmt_list   : { $$=new VecStmt(); }
+                | stmt_list { $$=$1; }
+                ;
+
+stmt_list   : stmt {
+                    $$ = new std::vector<std::unique_ptr<::parser::Stmt>>();
+                    // if ($1->kind!="PassStmt")
+                        $$->emplace_back($1);
+                }
+            | stmt_list stmt { 
+                    $$=$1; 
+                    // if ($2->kind!="PassStmt")
+                        $$->emplace_back($2);
+                }
+            ;
+stmt: simple_stmt TOKEN_NEWLINE { $$ = $1; }
+    | TOKEN_IF expr[cond] TOKEN_colon block[then] TOKEN_ELSE TOKEN_colon block[else]    { $$=new ::parser::IfStmt(Location(),$cond,$then,$else);}
+    | TOKEN_IF expr[cond] TOKEN_colon block[then]                                       { $$=new ::parser::IfStmt(Location(),$cond,$then);}
+    | TOKEN_IF expr[cond] TOKEN_colon block[then] elif_list[elif]                       { $$=new ::parser::IfStmt(Location(),$cond,$then,$elif); }
+    | TOKEN_WHILE expr[cond] TOKEN_colon block[do]                                      { $$=new ::parser::WhileStmt(Location(),$cond,$do); }
+    | TOKEN_FOR identifier[i] TOKEN_IN expr[list] TOKEN_colon block[do]                 { $$=new ::parser::ForStmt(Location(),$i,$list,$do); }
+    ;
+
+elif_list   : TOKEN_ELIF expr[cond] TOKEN_colon block[then]                                     { $$=new ::parser::IfStmt(Location(),$cond,$then); }
+            | TOKEN_ELIF expr[cond] TOKEN_colon block[then] TOKEN_ELSE TOKEN_colon block[else]  { $$=new ::parser::IfStmt(Location(),$cond,$then,$else); }            
+            | TOKEN_ELIF expr[cond] TOKEN_colon block[then] elif_list[elif]                     { $$=new ::parser::IfStmt(Location(),$cond,$then,$elif); }
+            ;
+
+simple_stmt : expr              { $$ = new parser::ExprStmt(Location(), $1); } 
+            | TOKEN_PASS        { $$=new ::parser::PassStmt(Location()); }
+            | TOKEN_RETURN expr { $$=new ::parser::ReturnStmt(Location(), $2); }
+            | TOKEN_RETURN      { $$=new ::parser::ReturnStmt(Location()); }
+            | assign_stmt       {                     
+                    std::reverse($1->targets.begin(),$1->targets.end()); 
+                    $$=$1;
+                }
+            ;
+
+assign_stmt : target TOKEN_equal expr { $$=new ::parser::AssignStmt(Location(), $1, $3); }
+            | target TOKEN_equal assign_stmt { 
+                    $$=$3;
+                    $$->targets.emplace_back($1);
+                }
+            ;
+
+target  : identifier
+        | member_expr 
+        | index_expr
+        ;
+
+block   : TOKEN_NEWLINE TOKEN_INDENT stmt_list TOKEN_DEDENT { $$=$3; }
+
+expr: expr[then] TOKEN_IF expr[cond] TOKEN_ELSE expr[else] { 
+            $$=new ::parser::IfExpr(Location(),$cond,$then,$else); 
+        }
+    | cexpr { $$=$1; }
+    | TOKEN_NOT cexpr                   { $$=new ::parser::UnaryExpr(Location(),std::string("not"),$2); }
+    | expr TOKEN_AND expr   { $$=new ::parser::BinaryExpr(Location(),$1,std::string("and"),$3); }
+    | expr TOKEN_OR expr    { $$=new ::parser::BinaryExpr(Location(),$1,std::string("or"),$3); }            
+    ;
+
+cexpr   : literal { $$ = $1; }
+        | identifier 
+        | TOKEN_l_square opt_expr_list TOKEN_r_square   { $$=new ::parser::ListExpr(Location(),$2); }
+        | TOKEN_l_paren expr TOKEN_r_paren              { $$=$2; }
+        | member_expr
+        | index_expr
+        | member_expr TOKEN_l_paren opt_expr_list TOKEN_r_paren { $$=new ::parser::MethodCallExpr(Location(),$1,$3); }
+        | identifier TOKEN_l_paren opt_expr_list TOKEN_r_paren  { $$=new ::parser::CallExpr(Location(),$1,$3); }
+        | binary_expr
+        | TOKEN_minus cexpr %prec UMINUS { $$=new ::parser::UnaryExpr(Location(),std::string("-"),$2); }
+        ;
+
+expr_list   : expr {
+                    $$ = new VecExpr();
+                    $$->emplace_back($1);
+                }
+            | expr_list TOKEN_comma expr {
+                    $$=$1;
+                    $$->emplace_back($3);
+                }
+            ;
+
+opt_expr_list   : {$$=new VecExpr();} 
+                | expr_list 
+                ;
+
+member_expr : cexpr TOKEN_period identifier { $$=new ::parser::MemberExpr(Location(),$1,$3); }   
+            ;
+
+index_expr  : cexpr TOKEN_l_square expr TOKEN_r_square { $$=new ::parser::IndexExpr(Location(),$1,$3); }
+            ;
+
+binary_expr : cexpr TOKEN_plus cexpr            {$$=new ::parser::BinaryExpr(Location(),$1,std::string("+"),$3);}
+            | cexpr TOKEN_minus cexpr           {$$=new ::parser::BinaryExpr(Location(),$1,std::string("-"),$3);}
+            | cexpr TOKEN_star cexpr            {$$=new ::parser::BinaryExpr(Location(),$1,std::string("*"),$3);}
+            | cexpr TOKEN_slash cexpr           {$$=new ::parser::BinaryExpr(Location(),$1,std::string("//"),$3);}
+            | cexpr TOKEN_percent cexpr         {$$=new ::parser::BinaryExpr(Location(),$1,std::string("%"),$3);}
+            | cexpr TOKEN_equalequal cexpr      {$$=new ::parser::BinaryExpr(Location(),$1,std::string("=="),$3);}
+            | cexpr TOKEN_exclaimequal cexpr    {$$=new ::parser::BinaryExpr(Location(),$1,std::string("!="),$3);}
+            | cexpr TOKEN_lessequal cexpr       {$$=new ::parser::BinaryExpr(Location(),$1,std::string("<="),$3);}
+            | cexpr TOKEN_greaterequal cexpr    {$$=new ::parser::BinaryExpr(Location(),$1,std::string(">="),$3);}
+            | cexpr TOKEN_less cexpr            {$$=new ::parser::BinaryExpr(Location(),$1,std::string("<"),$3);}
+            | cexpr TOKEN_greater cexpr         {$$=new ::parser::BinaryExpr(Location(),$1,std::string(">"),$3);}
+            | cexpr TOKEN_IS cexpr              {$$=new ::parser::BinaryExpr(Location(),$1,std::string("is"),$3);}
+            ;
+
+literal : TOKEN_NONE        {$$=new ::parser::NoneLiteral(Location());}
+        | TOKEN_TRUE        {$$=new ::parser::BoolLiteral(Location(),true);}
+        | TOKEN_FALSE       {$$=new ::parser::BoolLiteral(Location(),false);} 
+        | TOKEN_INTEGER     {$$=new ::parser::IntegerLiteral(Location(),$1);}
+        | TOKEN_STRING      {$$=new ::parser::StringLiteral(Location(),std::string($1));}
+        | TOKEN_IDSTRING    {$$=new ::parser::StringLiteral(Location(),std::string($1));}
+        ;
+
+
+identifier  :   TOKEN_IDENTIFIER  {$$=new ::parser::Ident(Location(),std::string($1));}
+            ;
+
+
+
 %%
 
 /** The error reporting function. */
