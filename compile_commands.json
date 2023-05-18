@@ -1,0 +1,242 @@
+[
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser-lib.dir/lex.yy.c.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser/lex.yy.c",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser/lex.yy.c",
+  "output": "src/parser/CMakeFiles/parser-lib.dir/lex.yy.c.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser-lib.dir/chocopy.tab.c.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser/chocopy.tab.c",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser/chocopy.tab.c",
+  "output": "src/parser/CMakeFiles/parser-lib.dir/chocopy.tab.c.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser-lib.dir/chocopy_parse.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_parse.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_parse.cpp",
+  "output": "src/parser/CMakeFiles/parser-lib.dir/chocopy_parse.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser-lib.dir/chocopy_ast.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_ast.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_ast.cpp",
+  "output": "src/parser/CMakeFiles/parser-lib.dir/chocopy_ast.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser-lib.dir/chocopy_logging.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_logging.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_logging.cpp",
+  "output": "src/parser/CMakeFiles/parser-lib.dir/chocopy_logging.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA1=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser.dir/lex.yy.c.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser/lex.yy.c",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser/lex.yy.c",
+  "output": "src/parser/CMakeFiles/parser.dir/lex.yy.c.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA1=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser.dir/chocopy.tab.c.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser/chocopy.tab.c",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser/chocopy.tab.c",
+  "output": "src/parser/CMakeFiles/parser.dir/chocopy.tab.c.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA1=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser.dir/chocopy_parse.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_parse.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_parse.cpp",
+  "output": "src/parser/CMakeFiles/parser.dir/chocopy_parse.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA1=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser.dir/chocopy_ast.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_ast.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_ast.cpp",
+  "output": "src/parser/CMakeFiles/parser.dir/chocopy_ast.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA1=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser.dir/chocopy_logging.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_logging.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/parser/chocopy_logging.cpp",
+  "output": "src/parser/CMakeFiles/parser.dir/chocopy_logging.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA1=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/parser.dir/__/semantic/chocopy_type.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "output": "src/parser/CMakeFiles/parser.dir/__/semantic/chocopy_type.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/semantic",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/semantic-lib.dir/chocopy_semant.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_semant.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_semant.cpp",
+  "output": "src/semantic/CMakeFiles/semantic-lib.dir/chocopy_semant.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/semantic",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/semantic-lib.dir/chocopy_type.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "output": "src/semantic/CMakeFiles/semantic-lib.dir/chocopy_type.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/semantic",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA2=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/semantic.dir/chocopy_semant.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_semant.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_semant.cpp",
+  "output": "src/semantic/CMakeFiles/semantic.dir/chocopy_semant.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/semantic",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA2=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/semantic.dir/chocopy_type.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/semantic/chocopy_type.cpp",
+  "output": "src/semantic/CMakeFiles/semantic.dir/chocopy_type.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/BasicBlock.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/BasicBlock.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/BasicBlock.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/BasicBlock.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Constant.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Constant.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Constant.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/Constant.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Function.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Function.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Function.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/Function.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/GlobalVariable.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/GlobalVariable.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/GlobalVariable.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/GlobalVariable.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Instruction.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Instruction.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Instruction.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/Instruction.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Module.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Module.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Module.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/Module.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Type.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Type.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Type.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/Type.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/User.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/User.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/User.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/User.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Value.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Value.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Value.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/Value.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/IRprinter.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/IRprinter.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/IRprinter.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/IRprinter.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/chocopy_lightir.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/chocopy_lightir.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/chocopy_lightir.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/chocopy_lightir.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer-lib.dir/Class.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Class.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Class.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer-lib.dir/Class.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/BasicBlock.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/BasicBlock.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/BasicBlock.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/BasicBlock.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Constant.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Constant.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Constant.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/Constant.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Function.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Function.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Function.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/Function.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/GlobalVariable.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/GlobalVariable.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/GlobalVariable.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/GlobalVariable.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Instruction.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Instruction.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Instruction.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/Instruction.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Module.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Module.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Module.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/Module.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Type.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Type.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Type.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/Type.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/User.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/User.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/User.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/User.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Value.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Value.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Value.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/Value.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/IRprinter.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/IRprinter.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/IRprinter.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/IRprinter.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/chocopy_lightir.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/chocopy_lightir.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/chocopy_lightir.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/chocopy_lightir.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/ir-optimizer",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA3=1 -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/ir-optimizer.dir/Class.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Class.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/ir-optimizer/Class.cpp",
+  "output": "src/ir-optimizer/CMakeFiles/ir-optimizer.dir/Class.cpp.o"
+},
+{
+  "directory": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/build/src/cgen",
+  "command": "/usr/bin/c++ -DFMT_SHARED -DPA4=1 -D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/cgen -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/ir-optimizer -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/semantic -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/include/parser -I/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/libs/json  -O3 -O3 -DNDEBUG -std=gnu++20 -o CMakeFiles/cgen.dir/chocopy_cgen.cpp.o -c /home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/cgen/chocopy_cgen.cpp",
+  "file": "/home/dfpmts/Documents/sp23-chocopy4-sp23-team-3/src/cgen/chocopy_cgen.cpp",
+  "output": "src/cgen/CMakeFiles/cgen.dir/chocopy_cgen.cpp.o"
+}
+]
