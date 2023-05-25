@@ -1472,6 +1472,7 @@ int main(int argc, char *argv[]) {
 
     std::ofstream output_stream(target_path + ".ll");
     output_stream << IR;
+    output_stream.flush();
 
     if (emit) {
         cout << IR;
