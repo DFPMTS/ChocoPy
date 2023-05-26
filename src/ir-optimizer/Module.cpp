@@ -1,10 +1,14 @@
 #include "Module.hpp"
 
+#include "Type.hpp"
+
 namespace lightir {
 
 Module::Module(string name) : module_name_(std::move(name)) {
     void_ty_ = new VoidType(this);
     int1_ty_ = new IntegerType(1, this);
+    int8_ty_ = new IntegerType(8, this);
+    ptr_i8_ty_ = PtrType::get(int8_ty_);
     int32_ty_ = new IntegerType(32, this);
     label_ty_ = new Type(Type::type::LABEL);
 
@@ -50,6 +54,8 @@ Type *Module::get_void_type() { return void_ty_; }
 IntegerType *Module::get_int1_type() { return int1_ty_; }
 
 IntegerType *Module::get_int32_type() { return int32_ty_; }
+
+PtrType *Module::get_ptr_i8_type() { return ptr_i8_ty_; }
 
 Type *Module::get_label_type() { return label_ty_; }
 

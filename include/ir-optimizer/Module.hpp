@@ -466,6 +466,7 @@ class Module {
     Type *get_label_type();
     IntegerType *get_int1_type();
     IntegerType *get_int32_type();
+    PtrType *get_ptr_i8_type();
 
     void add_function(Function *f);
     list<Function *> get_functions();
@@ -493,7 +494,9 @@ class Module {
     map<Instruction::OpID, string>
         instr_id2string_; /* Instruction from opid to string */
     IntegerType *int1_ty_;
+    IntegerType *int8_ty_;
     IntegerType *int32_ty_;
+    PtrType *ptr_i8_ty_;
     Type *label_ty_;
     Type *void_ty_;
 };

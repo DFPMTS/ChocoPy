@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <algorithm>
 #include <iostream>
 #include <queue>
@@ -8,6 +7,7 @@
 #include <string_view>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #include "BasicBlock.hpp"
 #include "Constant.hpp"
@@ -58,6 +58,7 @@ class CodeGen {
 
     [[nodiscard]] string stackToReg(InstGen::Addr addr, InstGen::Reg reg);
     [[nodiscard]] string regToStack(InstGen::Reg reg, InstGen::Addr addr);
+    [[nodiscard]] string getOperand(Value *op, bool get_lvalue);
 
     string comment(const string &s);
     string comment(const string &t, const string &s);
