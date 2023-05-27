@@ -399,7 +399,8 @@ void TypeChecker::visit(parser::CallExpr &node) {
         else {
             for (size_t i = 0; i < func_def->params.size(); ++i) {
                 node.args[i]->accept(*this);
-                if (!TypeAssign(node.args[i]->inferredType.get(),
+                if (!node.args[i]->inferredType ||
+                    !TypeAssign(node.args[i]->inferredType.get(),
                                 func_def->params[i].get())) {
                     error = true;
                     break;
