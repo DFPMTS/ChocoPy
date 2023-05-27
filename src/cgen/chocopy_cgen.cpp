@@ -9,6 +9,7 @@
 #include <ostream>
 #include <ranges>
 #include <regex>
+#include <stack>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -45,6 +46,9 @@ const auto a7 = InstGen::Reg("a7");
 
 const auto t0 = InstGen::Reg("t0");
 const auto t1 = InstGen::Reg("t1");
+
+const auto s1 = InstGen::Reg("s1");
+
 const auto zero = InstGen::Reg("zero");
 int offset = 0;
 
@@ -102,8 +106,10 @@ string CodeGen::generateFunctionCode(Function *func) {
     // create mapping for arg
     for (auto &arg : func->get_args()) {
         string op_name = arg->get_name();
+
+        auto arg_num = atoi(op_name.c_str() + 3);
         // from register
-        if (auto arg_num = atoi(op_name.c_str() + 3); arg_num < 8) {
+        if (arg_num < 8) {
             offset -= 4;
             asm_code += backend->emit_sw(InstGen::Reg("a" + to_string(arg_num)),
                                          fp, offset);
@@ -117,7 +123,16 @@ string CodeGen::generateFunctionCode(Function *func) {
             // offset -= 4;
             // mapping->insert({arg->get_name(), offset});
         }
-        // ! instack
+        // from stack
+        else {
+            auto stack_num = arg_num - 8;
+            // asm_code += stackToReg(InstGen::Addr(fp, stack_num * 4), a0);
+
+            // offset -= 4;
+            // asm_code += backend->emit_sw(a0, fp, offset);
+            // asm_code += backend->emit_addi(sp, fp, offset);
+            mapping->insert({arg->get_name(), stack_num * 4});
+        }
     }
     asm_code += "  # setup end\n\n";
 
@@ -513,7 +528,16 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
         }
         case lightir::Instruction::InElem:
         case lightir::Instruction::ExElem:
-        case lightir::Instruction::Trunc:
+        case lightir::Instruction::Trunc: {
+            auto trunc_inst = dynamic_cast<lightir::TruncInst *>(inst);
+            auto val = trunc_inst->get_operand(0);
+            asm_code += getOperand(val, false);
+            offset -= 4;
+            asm_code += backend->emit_sw(a0, fp, offset);
+            asm_code += backend->emit_addi(sp, fp, offset);
+            mapping->insert({trunc_inst->get_name(), offset});
+            break;
+        }
         case lightir::Instruction::VExt:
         case lightir::Instruction::Shl:
         case lightir::Instruction::AShr:
@@ -528,6 +552,7 @@ string CodeGen::generateFunctionCall(Instruction *inst, const string &call_inst,
     // cout << "func  " << inst->get_operand(0)->get_name() << endl;
     // TODO: Generate function call code
 
+    int stack_used = 0;
     // arg list non-empty
     if (inst->get_num_operand() > 1) {
         auto v1 = inst->get_operand(1);
@@ -538,8 +563,9 @@ string CodeGen::generateFunctionCall(Instruction *inst, const string &call_inst,
         // save a0
         asm_code += backend->emit_addi(sp, sp, -4);
         asm_code += backend->emit_sw(a0, sp, 0);
+        // asm_code += backend->emit_mv(s1, a0);
 
-        for (int i = 2; i < inst->get_num_operand(); ++i) {
+        for (int i = 2; i <= 8 && i < inst->get_num_operand(); ++i) {
             auto val = inst->get_operand(i);
             // cerr << "##  " << val->get_name() << endl;
 
@@ -553,10 +579,21 @@ string CodeGen::generateFunctionCall(Instruction *inst, const string &call_inst,
             }
             // ! in stack
         }
+        for (int i = inst->get_num_operand() - 1; i > 8; --i) {
+            auto val = inst->get_operand(i);
+            // evaluate
+            asm_code += getOperand(val, false);
 
+            asm_code += backend->emit_addi(sp, sp, -4);
+            asm_code += backend->emit_sw(a0, sp, 0);
+
+            ++stack_used;
+        }
         // load a0
-        asm_code += backend->emit_lw(a0, sp, 0);
-        asm_code += backend->emit_addi(sp, sp, 4);
+        asm_code += backend->emit_lw(a0, sp, 4 * stack_used);
+        // ! stack recovered after calling function
+        // ! asm_code += backend->emit_addi(sp, sp, 4);
+        // asm_code += backend->emit_mv(a0, s1);
     }
     auto func = inst->get_operand(0);
     // not from dispatch table
@@ -578,15 +615,21 @@ string CodeGen::generateFunctionCall(Instruction *inst, const string &call_inst,
         asm_code += backend->emit_jalr(t0);
     }
 
-    // save return value
-    // if (!inst->is_void_ret()) {
-    offset -= 4;
-    asm_code += backend->emit_sw(a0, fp, offset);
-    asm_code += backend->emit_addi(sp, fp, offset);
-    if (call_inst != "") mapping->insert({call_inst, offset});
-    // cerr << inst->get_name() << " -- " << offset << endl;
-    // }
+    // ! recovered stack used
+    if (stack_used) {
+        asm_code += backend->emit_addi(sp, sp, 4 * stack_used);
+    }
+    // ! used to store a0
+    asm_code += backend->emit_addi(sp, sp, 4);
 
+    // save return value
+    if (!inst->is_void_ret()) {
+        offset -= 4;
+        asm_code += backend->emit_sw(a0, fp, offset);
+        asm_code += backend->emit_addi(sp, fp, offset);
+        mapping->insert({call_inst, offset});
+        // cerr << inst->get_name() << " -- " << offset << endl;
+    }
     return asm_code;
 }
 string CodeGen::generateGlobalVarsCode() {
