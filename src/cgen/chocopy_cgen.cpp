@@ -654,8 +654,13 @@ string CodeGen::generateGlobalVarsCode() {
 
             asm_code += fmt::format(".globl $str.{}\n", var_name);
             asm_code += fmt::format("$str.{}:\n", var_name);
-            asm_code +=
-                fmt::format("  .asciz \"{}\"\n", const_str->get_value());
+            string str_data;
+            for (auto &x : const_str->get_value()) {
+                str_data += fmt::format("\\x{:02x}", int(x));
+            }
+            // asm_code +=
+            //     fmt::format("  .asciz \"{}\"\n", const_str->get_value());
+            asm_code += fmt::format("  .asciz \"{}\"\n", str_data);
             asm_code += "\n";
 
             global_map.insert({var_name, "$" + var_name});
