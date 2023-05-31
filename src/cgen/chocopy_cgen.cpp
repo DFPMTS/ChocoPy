@@ -82,7 +82,9 @@ string CodeGen::generateFunctionCode(Function *func) {
     // TODO: Generate function code
 
     /*
-        fp  ->
+
+            ->          arg9
+        fp  ->          arg8
             ->  (saved) ra
             ->  (saved) fp
     */
@@ -113,33 +115,34 @@ string CodeGen::generateFunctionCode(Function *func) {
             offset -= 4;
             asm_code += backend->emit_sw(InstGen::Reg("a" + to_string(arg_num)),
                                          fp, offset);
-            asm_code += backend->emit_addi(sp, fp, offset);
             mapping->insert({arg->get_name(), offset});
-
-            // asm_code += backend->emit_addi(sp, sp, -4);
-            // asm_code +=
-            //     backend->emit_sw(InstGen::Reg("a" + to_string(arg_num)), sp,
-            //     0);
-            // offset -= 4;
-            // mapping->insert({arg->get_name(), offset});
         }
         // from stack
         else {
             auto stack_num = arg_num - 8;
-            // asm_code += stackToReg(InstGen::Addr(fp, stack_num * 4), a0);
-
-            // offset -= 4;
-            // asm_code += backend->emit_sw(a0, fp, offset);
-            // asm_code += backend->emit_addi(sp, fp, offset);
             mapping->insert({arg->get_name(), stack_num * 4});
         }
     }
     asm_code += "  # setup end\n\n";
 
+    string body_code;
+
     for (auto &bb : func->get_basic_blocks()) {
-        asm_code += func->get_name() + "$" + bb->get_name() + ":\n";
-        asm_code += generateBasicBlockCode(bb);
+        body_code += func->get_name() + "$" + bb->get_name() + ":\n";
+        body_code += generateBasicBlockCode(bb);
     }
+
+    if (-2048 <= offset && offset < 2048) {
+        body_code = backend->emit_addi(sp, fp, offset) + body_code;
+    } else {
+        string li_addi;
+        li_addi += backend->emit_li(t0, offset);
+        li_addi += backend->emit_add(sp, fp, t0);
+        body_code = li_addi + body_code;
+    }
+
+    asm_code += body_code;
+
     return asm_code;
 }
 
@@ -162,7 +165,6 @@ string CodeGen::generateBasicBlockPostCode(BasicBlock *bb) {
 
 string CodeGen::getOperand(Value *op, bool get_lvalue) {
     std::string asm_code;
-    // cerr << op->get_name() << endl;
     if (auto const_op = dynamic_cast<lightir::ConstantNull *>(op); const_op) {
         asm_code += backend->emit_li(a0, 0);
     } else if (auto const_op = dynamic_cast<lightir::ConstantInt *>(op);
@@ -173,20 +175,24 @@ string CodeGen::getOperand(Value *op, bool get_lvalue) {
         // local virtual reg
         if (mapping->contains(op_name)) {
             int fp_offset = (*mapping)[op_name];
-            // cout << op_name << " " << fp_offset << endl;
-            if (get_lvalue) {  // lvalue
+            // lvalue
+            if (get_lvalue) {
                 if (-2048 <= fp_offset && fp_offset < 2048)
                     asm_code += backend->emit_addi(a0, fp, fp_offset);
                 else {
                     asm_code += backend->emit_li(a0, fp_offset);
                     asm_code += backend->emit_add(a0, fp, a0);
                 }
-            } else  // rvalue
+            }
+            // rvalue
+            else {
                 asm_code += stackToReg(InstGen::Addr(fp, fp_offset), a0);
-        } else if (alloca_vars->contains(op_name)) {
+            }
+        }
+        // alloca-created
+        else if (alloca_vars->contains(op_name)) {
             int fp_offset = (*alloca_vars)[op_name];
-            // cerr << op_name << " " << backend->emit_addi(a0, fp, fp_offset)
-            //      << endl;
+
             if (-2048 <= fp_offset && fp_offset < 2048)
                 asm_code += backend->emit_addi(a0, fp, fp_offset);
             else {
@@ -196,10 +202,7 @@ string CodeGen::getOperand(Value *op, bool get_lvalue) {
         }
         // global
         else {
-            // cout << ">>  " << op_name << endl;
             string label_str = global_map[op_name];
-            // cout << label_str << endl;
-            // cout << backend->emit_lw(a0, InstGen::Addr(label_str)) << endl;
             asm_code += backend->emit_la(a0, InstGen::Addr(label_str));
         }
     }
@@ -282,7 +285,6 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
                     asm_code += backend->emit_add(a0, t0, a0);
                     break;
                 case lightir::Instruction::Sub: {
-                    // cerr << inst->print() << endl;
                     if (auto const_op =
                             dynamic_cast<lightir::ConstantInt *>(v1);
                         const_op && v2->get_type() == module->get_int1_type()) {
@@ -315,15 +317,8 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
 
             // save virtual reg
             offset -= 4;
-            asm_code += backend->emit_sw(a0, fp, offset);
-            asm_code += backend->emit_addi(sp, fp, offset);
+            asm_code += regToStack(a0, InstGen::Addr(fp, offset));
             mapping->insert({add_inst->get_name(), offset});
-
-            // asm_code += backend->emit_addi(sp, sp, -4);
-            // asm_code += backend->emit_sw(a0, sp, 0);
-            // offset -= 4;
-            // mapping->insert({add_inst->get_name(), offset});
-            // cerr << add_inst->get_name() << " " << offset << endl;
 
             asm_code += "  # Binary Op end\n\n";
             break;
@@ -353,17 +348,11 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
             auto load_inst = dynamic_cast<lightir::LoadInst *>(inst);
             auto ptr = load_inst->get_lval();  // a0
 
-            // cerr << inst->print() << endl;
             asm_code += getOperand(ptr, false);
             asm_code += backend->emit_lw(a0, InstGen::Addr(a0, 0));
 
-            // asm_code += backend->emit_addi(sp, sp, -4);
-            // asm_code += backend->emit_sw(a0, sp, 0);
-            // offset -= 4;
-            // mapping->insert({load_inst->get_name(), offset});
             offset -= 4;
-            asm_code += backend->emit_sw(a0, fp, offset);
-            asm_code += backend->emit_addi(sp, fp, offset);
+            asm_code += regToStack(a0, InstGen::Addr(fp, offset));
             mapping->insert({load_inst->get_name(), offset});
 
             break;
@@ -435,14 +424,8 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
                 asm_code += backend->emit_slt(a0, t0, a0);
             }
 
-            // asm_code += backend->emit_addi(sp, sp, -4);
-            // asm_code += backend->emit_sw(a0, sp, 0);
-            // offset -= 4;
-            // mapping->insert({icmp_inst->get_name(), offset});
-
             offset -= 4;
-            asm_code += backend->emit_sw(a0, fp, offset);
-            asm_code += backend->emit_addi(sp, fp, offset);
+            asm_code += regToStack(a0, InstGen::Addr(fp, offset));
             mapping->insert({icmp_inst->get_name(), offset});
 
             break;
@@ -459,7 +442,7 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
         }
         case lightir::Instruction::GEP: {
             auto gep_inst = dynamic_cast<lightir::GetElementPtrInst *>(inst);
-            // cerr << "---GEP---" << endl;
+
             auto ptr = gep_inst->get_operand(0);  // t0
             auto idx = gep_inst->get_operand(1);  // a0
 
@@ -475,16 +458,11 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
             } else {
                 asm_code += backend->emit_slli(a0, a0, 2);
             }
-            // asm_code += backend->emit_add(a0, zero, zero);
+
             asm_code += backend->emit_add(a0, t0, a0);
 
-            // asm_code += backend->emit_addi(sp, sp, -4);
-            // asm_code += backend->emit_sw(a0, sp, 0);
-            // offset -= 4;
-            // mapping->insert({gep_inst->get_name(), offset});
             offset -= 4;
-            asm_code += backend->emit_sw(a0, fp, offset);
-            asm_code += backend->emit_addi(sp, fp, offset);
+            asm_code += regToStack(a0, InstGen::Addr(fp, offset));
             mapping->insert({gep_inst->get_name(), offset});
 
             break;
@@ -492,15 +470,10 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
         case lightir::Instruction::ZExt: {
             auto zext_inst = dynamic_cast<lightir::ZextInst *>(inst);
             auto val = zext_inst->get_operand(0);
-            asm_code += getOperand(val, true);
+            asm_code += getOperand(val, false);
 
-            // asm_code += backend->emit_addi(sp, sp, -4);
-            // asm_code += backend->emit_sw(a0, sp, 0);
-            // offset -= 4;
-            // mapping->insert({zext_inst->get_name(), offset});
             offset -= 4;
-            asm_code += backend->emit_sw(a0, fp, offset);
-            asm_code += backend->emit_addi(sp, fp, offset);
+            asm_code += regToStack(a0, InstGen::Addr(fp, offset));
             mapping->insert({zext_inst->get_name(), offset});
 
             break;
@@ -521,8 +494,7 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
             auto val = ptr_to_int_inst->get_operand(0);
             asm_code += getOperand(val, false);
             offset -= 4;
-            asm_code += backend->emit_sw(a0, fp, offset);
-            asm_code += backend->emit_addi(sp, fp, offset);
+            asm_code += regToStack(a0, InstGen::Addr(fp, offset));
             mapping->insert({ptr_to_int_inst->get_name(), offset});
             break;
         }
@@ -533,8 +505,7 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
             auto val = trunc_inst->get_operand(0);
             asm_code += getOperand(val, false);
             offset -= 4;
-            asm_code += backend->emit_sw(a0, fp, offset);
-            asm_code += backend->emit_addi(sp, fp, offset);
+            asm_code += regToStack(a0, InstGen::Addr(fp, offset));
             mapping->insert({trunc_inst->get_name(), offset});
             break;
         }
@@ -549,36 +520,27 @@ string CodeGen::generateInstructionCode(Instruction *inst) {
 string CodeGen::generateFunctionCall(Instruction *inst, const string &call_inst,
                                      vector<Value *> ops) {
     string asm_code;
-    // cout << "func  " << inst->get_operand(0)->get_name() << endl;
     // TODO: Generate function call code
 
     int stack_used = 0;
     // arg list non-empty
     if (inst->get_num_operand() > 1) {
         auto v1 = inst->get_operand(1);
-        // cerr << "##  " << v1->print().substr(1) << endl;
-        // v1->set_name(v1->print().substr(1));
         asm_code += getOperand(v1, false);
 
         // save a0
         asm_code += backend->emit_addi(sp, sp, -4);
         asm_code += backend->emit_sw(a0, sp, 0);
-        // asm_code += backend->emit_mv(s1, a0);
 
+        // in register
         for (int i = 2; i <= 8 && i < inst->get_num_operand(); ++i) {
             auto val = inst->get_operand(i);
-            // cerr << "##  " << val->get_name() << endl;
-
             // evaluate
             asm_code += getOperand(val, false);
-
-            // in register
-            if (i - 1 < 8) {
-                asm_code +=
-                    backend->emit_mv(InstGen::Reg("a" + to_string(i - 1)), a0);
-            }
-            // ! in stack
+            asm_code +=
+                backend->emit_mv(InstGen::Reg("a" + to_string(i - 1)), a0);
         }
+        // in stack
         for (int i = inst->get_num_operand() - 1; i > 8; --i) {
             auto val = inst->get_operand(i);
             // evaluate
@@ -592,8 +554,6 @@ string CodeGen::generateFunctionCall(Instruction *inst, const string &call_inst,
         // load a0
         asm_code += backend->emit_lw(a0, sp, 4 * stack_used);
         // ! stack recovered after calling function
-        // ! asm_code += backend->emit_addi(sp, sp, 4);
-        // asm_code += backend->emit_mv(a0, s1);
     }
     auto func = inst->get_operand(0);
     // not from dispatch table
@@ -615,20 +575,18 @@ string CodeGen::generateFunctionCall(Instruction *inst, const string &call_inst,
         asm_code += backend->emit_jalr(t0);
     }
 
-    // ! recovered stack used
+    // ! recovered stack used to store arguments
     if (stack_used) {
         asm_code += backend->emit_addi(sp, sp, 4 * stack_used);
     }
-    // ! used to store a0
-    asm_code += backend->emit_addi(sp, sp, 4);
+    // ! recover stack used to store a0
+    if (inst->get_num_operand() > 1) asm_code += backend->emit_addi(sp, sp, 4);
 
     // save return value
     if (!inst->is_void_ret()) {
         offset -= 4;
-        asm_code += backend->emit_sw(a0, fp, offset);
-        asm_code += backend->emit_addi(sp, fp, offset);
+        asm_code += regToStack(a0, InstGen::Addr(fp, offset));
         mapping->insert({call_inst, offset});
-        // cerr << inst->get_name() << " -- " << offset << endl;
     }
     return asm_code;
 }
@@ -654,12 +612,13 @@ string CodeGen::generateGlobalVarsCode() {
 
             asm_code += fmt::format(".globl $str.{}\n", var_name);
             asm_code += fmt::format("$str.{}:\n", var_name);
+
+            // hex
             string str_data;
             for (auto &x : const_str->get_value()) {
                 str_data += fmt::format("\\x{:02x}", int(x));
             }
-            // asm_code +=
-            //     fmt::format("  .asciz \"{}\"\n", const_str->get_value());
+
             asm_code += fmt::format("  .asciz \"{}\"\n", str_data);
             asm_code += "\n";
 
