@@ -159,7 +159,8 @@ LightWalker::LightWalker(parser::Program &program)
     i32_type = Type::get_int32_type(&*module);
     i1_type = Type::get_int1_type(&*module);
     i8_type = IntegerType::get(8, &*module);
-    ptr_i8_type = PtrType::get(i8_type);
+    // ptr_i8_type = PtrType::get(i8_type);
+    ptr_i8_type = module->get_ptr_i8_type();
 
     // *  Object Class & ptr_obj_type
     object_class = new Class(&*module, "object", 0, nullptr, true, true);
