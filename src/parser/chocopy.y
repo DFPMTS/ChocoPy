@@ -236,6 +236,9 @@ class_body  : single_class_decl             {
                     $$=$1;
                     $$->emplace_back($2); 
                 }
+            | TOKEN_PASS TOKEN_NEWLINE {
+                    $$=new VecDecl(); 
+                }
             ;
 
 single_class_decl   : var_def
@@ -352,7 +355,7 @@ expr: expr[then] TOKEN_IF expr[cond] TOKEN_ELSE expr[else] {
             $$=new ::parser::IfExpr(Location(),$cond,$then,$else); 
         }
     | cexpr { $$=$1; }
-    | TOKEN_NOT cexpr                   { $$=new ::parser::UnaryExpr(Location(),std::string("not"),$2); }
+    | TOKEN_NOT expr                   { $$=new ::parser::UnaryExpr(Location(),std::string("not"),$2); }
     | expr TOKEN_AND expr   { $$=new ::parser::BinaryExpr(Location(),$1,std::string("and"),$3); }
     | expr TOKEN_OR expr    { $$=new ::parser::BinaryExpr(Location(),$1,std::string("or"),$3); }            
     ;
