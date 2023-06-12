@@ -159,8 +159,7 @@ LightWalker::LightWalker(parser::Program &program)
     i32_type = Type::get_int32_type(&*module);
     i1_type = Type::get_int1_type(&*module);
     i8_type = IntegerType::get(8, &*module);
-    // ptr_i8_type = PtrType::get(i8_type);
-    ptr_i8_type = module->get_ptr_i8_type();
+    ptr_i8_type = PtrType::get(i8_type);
 
     // *  Object Class & ptr_obj_type
     object_class = new Class(&*module, "object", 0, nullptr, true, true);
@@ -1023,8 +1022,8 @@ void LightWalker::visit(parser::IfExpr &node) {
     else if (type_name == "bool")
         result_type = i1_type;
     else
-        result_type = dynamic_cast<Class *>(
-            scope.find_in_global(node.inferredType->get_name()));
+        result_type = PtrType::get(dynamic_cast<Class *>(
+            scope.find_in_global(node.inferredType->get_name())));
     // naive solution: use alloca
     auto result = builder->create_alloca(result_type);
 
