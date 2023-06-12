@@ -165,6 +165,12 @@ class TypeChecker : public ast::ASTAnalyzer {
     // TODO: may need a better way to keep track of lvalues
     bool is_assign = false;
 
+    // ! current class def
+    ClassDefType *current_class = nullptr;
+
+    // ! symbol outside of current class
+    SymbolTable *outside_sym = nullptr;
+
     // * Check the conformance between classes
     bool TypeConform(SymbolType *type_1, SymbolType *type_2);
     // * Check the assignment compatibility between type_1 and type_2

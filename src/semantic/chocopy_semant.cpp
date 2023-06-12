@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <iterator>
 #include <list>
 #include <map>
@@ -391,6 +392,18 @@ void TypeChecker::visit(parser::CallExpr &node) {
     // TODO: Implement this
     auto call_name = node.function->name;
     auto call_def = sym->get_shared<SymbolType>(call_name);
+
+    // ! if in a Class, ignore methods
+    if (current_class) {
+        // try to get method
+        auto method_def =
+            current_class->current_scope.declares_shared(call_name);
+        // need to go outside of class's symboltable
+        if (method_def == call_def) {
+            call_def = outside_sym->get_shared<SymbolType>(call_name);
+        }
+    }
+
     if (dynamic_pointer_cast<FunctionDefType>(call_def)) {
         auto func_def = dynamic_pointer_cast<FunctionDefType>(call_def);
         bool error = false;
@@ -462,11 +475,22 @@ void TypeChecker::visit(parser::ClassDef &node) {
     auto saved_sym = sym;
     auto name = node.get_id()->name;
     auto class_def_type = sym->declares_shared<ClassDefType>(name);
+
+    // set current class
+    current_class = class_def_type.get();
+    // set outside symboltable
+    outside_sym = saved_sym;
+
     sym = &class_def_type->current_scope;
     for (const auto &decl : node.declaration) {
         decl->accept(*this);
     }
     sym = saved_sym;
+
+    // unset current class
+    current_class = nullptr;
+    // unset outside symboltable
+    outside_sym = nullptr;
 }
 void TypeChecker::visit(parser::FuncDef &node) {
     // TODO: Implement this
@@ -717,11 +741,13 @@ void TypeChecker::visit(parser::ReturnStmt &node) {
         node.value->accept(*this);
         value_type = node.value->inferredType;
     }
-    if (TypeAssign(value_type.get(), return_type.get())) {
+    if (value_type && TypeAssign(value_type.get(), return_type.get())) {
     } else {
-        typeError(&node,
-                  fmt::format("Expected type `{}`; got type `{}`",
-                              return_type->get_name(), value_type->get_name()));
+        if (value_type) {
+            typeError(&node, fmt::format("Expected type `{}`; got type `{}`",
+                                         return_type->get_name(),
+                                         value_type->get_name()));
+        }
     }
 }
 void TypeChecker::visit(parser::StringLiteral &node) {
