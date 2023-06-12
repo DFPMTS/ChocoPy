@@ -600,8 +600,8 @@ string CodeGen::generateGlobalVarsCode() {
                 dynamic_cast<lightir::ConstantStr *>(x->get_init());
             const_str) {
             asm_code += "\n";
-            asm_code += fmt::format(".globl ${}\n", var_name);
-            asm_code += fmt::format("${}:\n", var_name);
+            asm_code += fmt::format(".globl {}\n", var_name);
+            asm_code += fmt::format("{}:\n", var_name);
             asm_code += "  .word 3\n";
             asm_code += "  .word 5\n";
             asm_code += "  .word $str$dispatchTable\n";
@@ -622,7 +622,7 @@ string CodeGen::generateGlobalVarsCode() {
             asm_code += fmt::format("  .asciz \"{}\"\n", str_data);
             asm_code += "\n";
 
-            global_map.insert({var_name, "$" + var_name});
+            global_map.insert({var_name, var_name});
         } else {
             int init_val = 0;
             if (auto const_int =

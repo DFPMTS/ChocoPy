@@ -1227,7 +1227,7 @@ void LightWalker::visit(parser::StringLiteral &node) {
     auto const_id = get_const_type_id();
     auto const_str_value = ConstantStr::get(node.value, const_id, module.get());
     auto const_str =
-        GlobalVariable::create("const_" + to_string(const_id), module.get(),
+        GlobalVariable::create("$const_" + to_string(const_id), module.get(),
                                ptr_str_type, false, const_str_value);
     visitor_return_value = const_str;
 }
