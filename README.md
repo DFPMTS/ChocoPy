@@ -1,5 +1,5 @@
-# ChocoPy PA4
+# ChocoPy Compiler
 
-阅读[指南](./doc/PA4/README.md).
+Introduction: https://chocopy.org
 
-不允许修改 `.github/classroom/autograding.json` 和 `.github/workflows/classroom.yml`.
+For documentation, see `doc/` directory.
